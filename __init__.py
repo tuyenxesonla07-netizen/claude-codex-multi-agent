@@ -28,7 +28,7 @@ from tools.messaging import MessageBus, Message, Topic
 from tools.quality import QualityEvaluator, ReviewResult, ConvergenceDetector
 from agents.supervisor import CodexSupervisor, Requirement, ModuleTask
 from agents.experts import (
-    BaseExpertAgent,
+    ExpertAgent,
     create_expert_agents,
     ExpertInput,
     ExpertOutput,
@@ -67,6 +67,7 @@ class ClaudeCodexMultiAgent:
         self.supervisor = CodexSupervisor(self.agents_config)
         self.expert_agents = create_expert_agents(
             os.path.join(config_dir, "schemas"),
+            agents_config=self.agents_config,
             llm_provider=self.llm_provider,
         )
 
@@ -290,6 +291,12 @@ __all__ = [
     "QualityEvaluator",
     "ReviewResult",
     "ConvergenceDetector",
+    "ExpertAgent",
+    "create_expert_agents",
+    "ExpertInput",
+    "ExpertOutput",
+    "ReviewInput",
+    "ReviewOutput",
 ]
 
 
