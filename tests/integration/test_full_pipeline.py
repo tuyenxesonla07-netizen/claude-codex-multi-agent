@@ -1,4 +1,4 @@
-# tests/integration/test_full_pipeline.py
+﻿# tests/integration/test_full_pipeline.py
 
 """
 Full Pipeline Integration Test
@@ -58,7 +58,7 @@ class TestFullPipeline(unittest.TestCase):
 
         for filename in os.listdir(self.schemas_dir):
             path = os.path.join(self.schemas_dir, filename)
-            with open(path) as f:
+            with open(path, encoding="utf-8") as f:
                 schema = json.load(f)
 
             if filename.endswith("_input.json"):
@@ -268,12 +268,15 @@ class TestFullPipeline(unittest.TestCase):
 
     def test_dependency_graph_with_agents_config(self):
         """Test dependency graph is built from agents.yaml when available"""
-        import yaml
+        try:
+            import yaml
+        except ImportError:
+            self.skipTest("pyyaml not installed")
 
         agents_path = os.path.join(
             os.path.dirname(__file__), "..", "..", "config", "agents.yaml"
         )
-        with open(agents_path, "r") as f:
+        with open(agents_path, "r", encoding="utf-8") as f:
             content = f.read()
             lines = content.split("\n")
             yaml_lines = []
@@ -301,3 +304,4 @@ class TestFullPipeline(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

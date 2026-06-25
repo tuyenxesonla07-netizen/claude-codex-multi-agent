@@ -1,4 +1,4 @@
-"""
+﻿"""
 tests/compiler/test_fix_deriver.py
 
 修复指令推导器测试 — 验证 Schema → FixTemplate 的自动推导
@@ -25,7 +25,7 @@ class TestFixInstructionDeriver(unittest.TestCase):
     def _load_schema(self, filename: str) -> dict:
         import json
         path = os.path.join(self.schemas_dir, filename)
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
 
     def test_order_has_state_machine_rule(self):
@@ -121,3 +121,4 @@ class TestFixInstructionDeriver(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

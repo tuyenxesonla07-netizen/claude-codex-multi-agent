@@ -1,4 +1,4 @@
-# tests/integration/test_e2e_pipeline.py
+﻿# tests/integration/test_e2e_pipeline.py
 
 """
 端到端集成测试 — 验证完整的编译流水线
@@ -46,7 +46,7 @@ class TestEndToEndPipeline(unittest.TestCase):
                 file_module = filename.replace("_output.json", "")
                 module_name = MODULE_NAME_MAP.get(file_module, file_module)
                 path = os.path.join(self.schemas_dir, filename)
-                with open(path) as f:
+                with open(path, encoding="utf-8") as f:
                     schemas[module_name] = json.load(f)
         return schemas
 
@@ -58,7 +58,7 @@ class TestEndToEndPipeline(unittest.TestCase):
                 file_module = filename.replace("_input.json", "")
                 module_name = MODULE_NAME_MAP.get(file_module, file_module)
                 path = os.path.join(self.schemas_dir, filename)
-                with open(path) as f:
+                with open(path, encoding="utf-8") as f:
                     schemas[module_name] = json.load(f)
         return schemas
 
@@ -177,7 +177,7 @@ class TestQualityGateEvaluation(unittest.TestCase):
                 os.path.dirname(__file__), "..", "..", "config", "schemas",
                 f"{file_module}_output.json"
             )
-            with open(path) as f:
+            with open(path, encoding="utf-8") as f:
                 module_schemas[module] = json.load(f)
 
         suite = generator.generate(module_schemas)
@@ -210,7 +210,7 @@ class TestQualityGateEvaluation(unittest.TestCase):
             os.path.dirname(__file__), "..", "..", "config", "schemas",
             "auth_output.json"
         )
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             module_schemas = {"authentication": json.load(f)}
 
         suite = generator.generate(module_schemas)
@@ -344,3 +344,4 @@ class TestMessageBus(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

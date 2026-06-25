@@ -1,4 +1,4 @@
-"""
+﻿"""
 tests/compiler/test_context_deriver.py
 
 上下文注入推导器测试 — 验证 Schema → ContextStrategy 的自动推导
@@ -25,7 +25,7 @@ class TestContextDeriver(unittest.TestCase):
 
     def _load_schema(self, filename: str) -> dict:
         path = os.path.join(self.schemas_dir, filename)
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
 
     def test_auth_schema_derives_security_context(self):
@@ -127,7 +127,7 @@ class TestContextStrategyIsolation(unittest.TestCase):
 
     def _load_schema(self, filename: str) -> dict:
         path = os.path.join(self.schemas_dir, filename)
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
 
     def test_auth_has_security_but_notification_doesnt(self):
@@ -155,3 +155,4 @@ class TestContextStrategyIsolation(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

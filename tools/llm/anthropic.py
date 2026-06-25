@@ -9,6 +9,7 @@ Anthropic Claude LLM Provider
 
 import json
 import os
+import re
 from typing import Optional
 
 from tools.llm.base import LLMProvider, LLMResponse
@@ -117,6 +118,3 @@ class AnthropicClaudeProvider:
 
     def get_name(self) -> str:
         return f"anthropic/{self._model}"
-
-
-import re  # 用于 JSON 清理

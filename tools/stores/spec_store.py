@@ -6,8 +6,11 @@ tools/stores/spec_store.py
 读取时机: Prompt Agent 整合时
 """
 
+import json
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
+
+from tools.stores.persistence import StoreDatabase
 
 
 @dataclass
@@ -41,8 +44,10 @@ class ModuleSpec:
 class SpecStore:
     """模块规格存储"""
 
-    def __init__(self):
+    def __init__(self, db: Optional[StoreDatabase] = None):
         self._store: Dict[str, ModuleSpec] = {}
+        self._db = db
+        self._store_type = "module_spec"
 
     def put(self, module: str, spec: ModuleSpec) -> None:
         """存储模块规格"""

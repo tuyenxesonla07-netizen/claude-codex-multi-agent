@@ -2,7 +2,10 @@
 # Schema-First Compilation Architecture
 
 import json
+import logging
 import os
+
+logger = logging.getLogger(__name__)
 
 from tools.llm import create_llm_provider
 from tools.compiler import (
@@ -35,16 +38,21 @@ from agents.experts import (
 
 
 class ClaudeCodexMultiAgent:
-    def __init__(self, config_dir="config", llm_backend="mock", llm_api_key=None):
+    def __init__(self, config_dir="config", llm_backend="mock", llm_api_key=None, llm_base_url=None):
         self.requirement_store = RequirementStore()
         self.interface_store = InterfaceStore()
         self.spec_store = SpecStore()
         self.message_bus = MessageBus()
 
-        # LLM Provider (mock 默认, anthropic 可选)
-        self.llm_provider = create_llm_provider(
-            backend=llm_backend, api_key=llm_api_key
-        )
+        # LLM Provider (mock 默认, anthropic/openai-compatible 可选)
+        if llm_backend == "openai-compatible":
+            self.llm_provider = create_llm_provider(
+                backend=llm_backend, api_key=llm_api_key, base_url=llm_base_url
+            )
+        else:
+            self.llm_provider = create_llm_provider(
+                backend=llm_backend, api_key=llm_api_key
+            )
 
         self.compiler = PipelineCompiler(
             requirement_store=self.requirement_store,
@@ -101,10 +109,28 @@ class ClaudeCodexMultiAgent:
                     ),
                 )
 
+        # Generate real code using the supervisor
+        code_artifact = {}
+        for module_name, spec in module_specs.items():
+            code = self.supervisor.generate_code(
+                module_spec=spec.__dict__ if hasattr(spec, "__dict__") else spec,
+                llm_provider=self.llm_provider,
+                module_name=module_name,
+            )
+            if code:
+                code_artifact[module_name] = code
+
+        # Print code generation stats
+        total_lines = sum(c.count(chr(10)) + 1 for c in code_artifact.values())
+        print(f"[MultiAgent] Generated {len(code_artifact)} modules, {total_lines} total lines")
+        for mod, code in code_artifact.items():
+            print(f"  {mod}: {code.count(chr(10)) + 1} lines")
+
         return {
             "compiled": compiled,
             "module_specs": module_specs,
             "prompt": compiled.prompt_template.template_str,
+            "code_artifact": code_artifact,
         }
 
     def run_phase2(self, code_artifact, compiled_pipeline=None):
@@ -141,10 +167,14 @@ class ClaudeCodexMultiAgent:
         }
 
     def _load_agents_config(self, config_dir):
-        import yaml
+        try:
+            import yaml
+        except ImportError:
+            logger.warning("pyyaml not installed, agents config will be empty. Install with: pip install pyyaml")
+            return {}
         agents_path = os.path.join(config_dir, "agents.yaml")
         if os.path.exists(agents_path):
-            with open(agents_path, "r") as f:
+            with open(agents_path, "r", encoding="utf-8") as f:
                 content = f.read()
                 lines = content.split("\n")
                 yaml_lines = []
@@ -161,13 +191,13 @@ class ClaudeCodexMultiAgent:
         return {}
 
     def _load_schemas(self):
-        schemas_dir = os.path.join("config", "schemas")
+        schemas_dir = os.path.join(os.path.dirname(__file__), "config", "schemas")
         input_schemas = {}
         output_schemas = {}
         if os.path.exists(schemas_dir):
             for filename in os.listdir(schemas_dir):
                 path = os.path.join(schemas_dir, filename)
-                with open(path) as f:
+                with open(path, encoding="utf-8") as f:
                     schema = json.load(f)
                 if filename.endswith("_input.json"):
                     module = filename.replace("_input.json", "")
@@ -208,7 +238,7 @@ class ClaudeCodexMultiAgent:
         )
 
     def _simulate_reviews(self, module_order):
-        import random
+        _rng = __import__("random").Random(42)
         results = []
         for module_name in module_order:
             expert = self.expert_agents.get(module_name)
@@ -222,7 +252,7 @@ class ClaudeCodexMultiAgent:
                         module=module_name,
                         verdict=review.verdict,
                         issues=review.issues,
-                        confidence=random.uniform(0.7, 0.95),
+                        confidence=_rng.uniform(0.7, 0.95),
                     )
                 )
             else:
@@ -261,3 +291,5 @@ __all__ = [
     "ReviewResult",
     "ConvergenceDetector",
 ]
+
+
