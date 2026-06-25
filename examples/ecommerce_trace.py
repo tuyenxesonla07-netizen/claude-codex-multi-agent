@@ -52,7 +52,7 @@ def load_schemas(config_dir="config"):
 
     for filename in os.listdir(schemas_dir):
         path = os.path.join(schemas_dir, filename)
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             schema = json.load(f)
 
         if filename.endswith("_input.json"):
@@ -154,9 +154,9 @@ def simulate_expert_analysis(module_name, input_schema, context_strategy):
 
 def simulate_code_review(module_name, code_snippet):
     """模拟代码审查（实际由 LLM 执行）"""
-    import random
+    _rng = __import__("random").Random(42)
     # 模拟：大部分模块通过，偶尔有问题
-    if module_name == "shopping_cart" and random.random() < 0.5:
+    if module_name == "shopping_cart" and _rng.random() < 0.5:
         return {
             "verdict": "fail",
             "issues": [

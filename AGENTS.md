@@ -5,6 +5,20 @@ Schema-First Compilation Architecture for Multi-Agent Development Pipeline
 ## Quick Start
 
 ```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Optional backends (install as needed):
+pip install httpx                  # for openai-compatible backend
+pip install anthropic              # for anthropic backend
+pip install pyyaml                 # for /agents endpoint and compile_from_config
+
+# Configure API key (cross-platform)
+# macOS/Linux:  cp .env.example .env
+# Windows CMD:  copy .env.example .env
+# Windows PowerShell: Copy-Item .env.example .env
+# Then edit .env and fill in LLM_API_KEY
+
 # Run all tests
 python -B -m pytest tests/ -v
 

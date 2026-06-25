@@ -255,16 +255,9 @@ def create_expert_agents(
         output_path = os.path.join(schemas_dir, f"{module_name}_output.json")
 
         if os.path.exists(input_path) and os.path.exists(output_path):
-            with open(input_path) as f:
+            with open(input_path, encoding="utf-8") as f:
                 input_schema = json.load(f)
-            with open(output_path) as f:
-                output_schema = json.load(f)
-            experts[module_name] = cls(input_schema, output_schema, llm_provider)
-
-    return experts
-h open(input_path) as f:
-                input_schema = json.load(f)
-            with open(output_path) as f:
+            with open(output_path, encoding="utf-8") as f:
                 output_schema = json.load(f)
             experts[module_name] = cls(input_schema, output_schema, llm_provider)
 

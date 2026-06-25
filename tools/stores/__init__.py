@@ -12,6 +12,13 @@ from tools.stores.requirement_store import RequirementStore, ModuleRequirement
 from tools.stores.interface_store import InterfaceStore, InterfaceDef
 from tools.stores.spec_store import SpecStore, ModuleSpec
 
+# Optional PostgreSQL store
+try:
+    from tools.stores.postgres import AsyncPostgresStore, DocumentChunk
+    _POSTGRES_AVAILABLE = True
+except ImportError:
+    _POSTGRES_AVAILABLE = False
+
 __all__ = [
     "RequirementStore",
     "ModuleRequirement",
@@ -20,3 +27,6 @@ __all__ = [
     "SpecStore",
     "ModuleSpec",
 ]
+
+if _POSTGRES_AVAILABLE:
+    __all__.extend(["AsyncPostgresStore", "DocumentChunk"])

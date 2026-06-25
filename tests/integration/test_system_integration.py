@@ -8,6 +8,10 @@ Tests the ClaudeCodexMultiAgent entry point:
   - run_phase2: review loop with convergence
   - Expert agent wiring
   - Store population
+
+Note: Tests that call run_phase1 require a working LLM provider.
+They are skipped when LLM_API_KEY is not set and the default
+DayueAIProvider cannot be initialized.
 """
 
 import os
@@ -30,6 +34,21 @@ ClaudeCodexMultiAgent = ccm_module.ClaudeCodexMultiAgent
 
 # Module names used by file (not mapped)
 FILE_MODULE_NAMES = ["auth", "product", "cart", "order", "payment", "notification", "report"]
+
+
+def _llm_provider_available():
+    """Check if a real LLM provider can be initialized."""
+    try:
+        from tools.agent.claude_code import DayueAIProvider
+        DayueAIProvider()
+        return True
+    except (ValueError, ImportError):
+        return False
+
+
+# Decorator: skip test if LLM provider is not available
+def skip_if_no_llm(func):
+    return unittest.skipUnless(_llm_provider_available(), "LLM provider not available (set LLM_API_KEY)")(func)
 
 
 class TestClaudeCodexMultiAgent(unittest.TestCase):
@@ -57,6 +76,7 @@ class TestClaudeCodexMultiAgent(unittest.TestCase):
                 f"Expert agent for '{module}' not loaded"
             )
 
+    @skip_if_no_llm
     def test_run_phase1_returns_compiled_pipeline(self):
         """Phase 1 should return compiled pipeline with all components"""
         result = self.system.run_phase1(
@@ -71,6 +91,7 @@ class TestClaudeCodexMultiAgent(unittest.TestCase):
         self.assertEqual(len(compiled.context_strategies), 7)
         self.assertEqual(len(compiled.implementation_order), 7)
 
+    @skip_if_no_llm
     def test_run_phase1_populates_stores(self):
         """Phase 1 should populate spec store"""
         self.system.run_phase1("构建在线商城")
@@ -78,23 +99,25 @@ class TestClaudeCodexMultiAgent(unittest.TestCase):
         # Spec store should have entries
         self.assertGreater(len(self.system.spec_store), 0)
 
+    @skip_if_no_llm
     def test_run_phase1_context_strategies_correct(self):
         """Phase 1 should derive correct context strategies"""
         result = self.system.run_phase1("构建在线商城")
         compiled = result["compiled"]
 
         # Authentication should need security context
-        auth = compiled.context_strategies["auth"]
+        auth = compiled.context_strategies["authentication"]
         self.assertTrue(auth.needs_security_context)
 
         # Payment should need compliance context
-        pay = compiled.context_strategies["payment"]
+        pay = compiled.context_strategies["payment_integration"]
         self.assertTrue(pay.needs_compliance_context)
 
         # Notification should NOT need security context
-        notif = compiled.context_strategies["notification"]
+        notif = compiled.context_strategies["notification_service"]
         self.assertFalse(notif.needs_security_context)
 
+    @skip_if_no_llm
     def test_run_phase1_prompt_generated(self):
         """Phase 1 should generate a non-empty prompt"""
         result = self.system.run_phase1("构建在线商城")
@@ -123,11 +146,15 @@ class TestClaudeCodexMultiAgent(unittest.TestCase):
 
     def test_compile_pipeline_method(self):
         """compile_pipeline should work standalone"""
-        compiled = self.system.compile_pipeline(
-            self.system.compiler.compile_from_config().module_schemas
-        )
+        try:
+            compiled = self.system.compile_pipeline(
+                self.system.compiler.compile_from_config().module_schemas
+            )
+        except ImportError as e:
+            self.skipTest(f"pyyaml not installed: {e}")
         self.assertIsNotNone(compiled)
 
+    @skip_if_no_llm
     def test_full_two_phase_flow(self):
         """Complete phase1 -> phase2 flow"""
         # Phase 1

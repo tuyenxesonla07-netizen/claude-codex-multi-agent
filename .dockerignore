@@ -1,0 +1,20 @@
+# .dockerignore
+
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+.git
+.github
+.pytest_cache
+.tox
+.venv
+venv/
+env/
+.env
+data/
+*.db
+*.sqlite3
+frontend/node_modules
+frontend/dist
+.DS_Store

@@ -222,7 +222,13 @@ class PipelineCompiler:
           - config/agents.yaml → 模块注册信息
           - config/schemas/*.json → 所有模块的 output_schema
         """
-        import yaml
+        try:
+            import yaml
+        except ImportError:
+            raise ImportError(
+                "pyyaml is required for compile_from_config(). "
+                "Install with: pip install pyyaml"
+            )
 
         # 读取 agents.yaml
         agents_path = os.path.join(config_dir, "agents.yaml")

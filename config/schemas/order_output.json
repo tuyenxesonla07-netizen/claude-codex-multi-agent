@@ -7,7 +7,7 @@
   "properties": {
     "module_spec": {
       "type": "object",
-      "required": ["components", "acceptance_criteria"],
+      "required": ["components", "interfaces", "acceptance_criteria"],
       "properties": {
         "components": {
           "type": "array",

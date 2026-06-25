@@ -34,43 +34,18 @@ class DependencyGraph:
         返回: 按依赖关系排序的模块列表（被依赖的在前）
         异常: 如果存在循环依赖，抛出 ValueError
         """
-        # 计算入度
-        in_degree = {node: 0 for node in self.nodes}
-        for module, deps in self.adjacency.items():
-            for dep in deps:
-                if dep in in_degree:
-                    in_degree[module] = in_degree.get(module, 0)
-                    # module 依赖 dep，所以 module 的入度不增加
-                    # 实际上入度 = 有多少模块依赖我？不对，重新理解：
-                    # 如果 module 依赖 dep，那么 dep → module 有一条边
-                    # 所以 module 的入度 +1
-            # 重新计算：入度 = 指向该节点的边数
-        # 重新计算入度
-        in_degree = {node: 0 for node in self.nodes}
-        for module, deps in self.adjacency.items():
-            for dep in deps:
-                # dep → module 的边
-                pass
-            # 不对，如果 adjacency[module] = [dep1, dep2]
-            # 意味着 module 依赖 dep1 和 dep2
-            # 所以边是 dep1 → module, dep2 → module
-            # module 的入度 = len(deps)
-
-        # 重新正确计算
-        in_degree = {node: 0 for node in self.nodes}
-        for module in self.nodes:
-            deps = self.adjacency.get(module, [])
-            in_degree[module] = len(deps)
+        # 计算入度：入度 = 该模块依赖的其他模块数量
+        in_degree = {node: len(self.adjacency.get(node, [])) for node in self.nodes}
 
         # Kahn's algorithm
-        queue = deque([n for n in self.nodes if in_degree[n] == 0])
+        queue = deque(sorted(n for n in self.nodes if in_degree[n] == 0))
         result = []
 
         while queue:
             node = queue.popleft()
             result.append(node)
 
-            # 移除该节点的出边
+            # 移除该节点的出边，更新依赖方的入度
             for module, deps in self.adjacency.items():
                 if node in deps:
                     in_degree[module] -= 1
