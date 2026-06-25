@@ -97,7 +97,7 @@ _task_store: Dict[str, Dict[str, Any]] = {}
 app = FastAPI(
     title="Claude-Codex Multi-Agent Pipeline",
     description="Schema-First Multi-Agent Development Pipeline API",
-    version="1.0.0",
+    version="3.0.0",
 )
 app.add_middleware(
     CORSMiddleware,

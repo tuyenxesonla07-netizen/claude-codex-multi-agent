@@ -1,128 +1,139 @@
 <template>
-  <div class="agents-view">
-    <div class="card">
-      <h2>Agent Registry ({{ agents.length }})</h2>
-      <div class="agent-grid">
-        <div v-for="agent in agents" :key="agent.agent_id" class="agent-card">
-          <div class="agent-card-header">
-            <span class="agent-role" :class="agent.role">{{ agent.role }}</span>
-            <span class="agent-id">{{ agent.agent_id }}</span>
-          </div>
-          <div class="agent-module">Module: {{ agent.module }}</div>
-          <div class="agent-caps">
-            <span v-for="cap in agent.capabilities" :key="cap" class="cap-tag">{{ cap }}</span>
-          </div>
-          <div v-if="agent.dependencies?.length" class="agent-deps">
-            Dependencies: {{ agent.dependencies.join(', ') }}
-          </div>
-          <div class="agent-actions">
-            <button @click="handleCall(agent)" class="btn small primary">Call Direct</button>
-          </div>
-        </div>
+  <div class="agents-page">
+    <div class="page-header">
+      <h2>Agent Registry</h2>
+      <div class="search-bar">
+        <input v-model="search" placeholder="Filter agents..." class="input" />
       </div>
-      <div v-if="!agents.length" class="empty">No agents loaded</div>
     </div>
 
-    <!-- Call Result -->
-    <div v-if="callResult" class="card">
-      <h2>Call Result</h2>
-      <pre class="result-box">{{ typeof callResult === 'string' ? callResult : JSON.stringify(callResult, null, 2) }}</pre>
+    <div class="agent-grid">
+      <div v-for="agent in filteredAgents" :key="agent.agent_id" class="agent-card">
+        <div class="card-header">
+          <Badge :variant="agent.role">{{ agent.role }}</Badge>
+          <span class="agent-id">{{ agent.agent_id }}</span>
+        </div>
+        <div class="card-module">{{ agent.module }}</div>
+        <div class="card-caps">
+          <span v-for="cap in agent.capabilities?.slice(0, 4)" :key="cap" class="cap-tag">{{ cap }}</span>
+          <span v-if="(agent.capabilities?.length || 0) > 4" class="cap-more">
+            +{{ agent.capabilities.length - 4 }}
+          </span>
+        </div>
+        <div v-if="agent.dependencies?.length" class="card-deps">
+          deps: {{ agent.dependencies.join(', ') }}
+        </div>
+        <button class="btn-sm" @click="handleCall(agent)">Call Direct</button>
+      </div>
     </div>
+
+    <div v-if="!filteredAgents.length" class="empty">No agents found</div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { listAgents, callAgent } from '@/api/client'
+import { ref, computed, onMounted } from 'vue'
+import { useAppStore } from '@/stores'
+import Badge from '@/components/shared/Badge.vue'
+import { callAgent } from '@/api/client'
 
-const agents = ref<any[]>([])
-const callResult = ref<any>(null)
+const appStore = useAppStore()
+const search = ref('')
 
-async function refresh() {
-  try {
-    const res = await listAgents()
-    agents.value = res.agents || []
-  } catch { /* ignore */ }
-}
+const filteredAgents = computed(() => {
+  if (!search.value) return appStore.agents
+  const q = search.value.toLowerCase()
+  return appStore.agents.filter(a =>
+    a.agent_id.toLowerCase().includes(q) ||
+    a.module?.toLowerCase().includes(q) ||
+    a.role?.toLowerCase().includes(q)
+  )
+})
 
 async function handleCall(agent: any) {
   try {
-    callResult.value = await callAgent(agent.module, {
-      requirement: 'Hello, introduce yourself as a ' + agent.role,
-      constraints: [],
-    })
-  } catch (e: any) {
-    callResult.value = { error: e.message }
-  }
+    await callAgent(agent.module, { requirement: 'Hello from agent direct call', constraints: [] })
+  } catch (e) { console.error('Call failed:', e) }
 }
 
-onMounted(refresh)
+onMounted(() => { if (!appStore.agents.length) appStore.fetchAgents() })
 </script>
 
 <style scoped>
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 24px;
+.agents-page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: var(--space-6);
 }
-.card h2 { font-size: 16px; margin-bottom: 16px; }
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-5);
+}
+.page-header h2 { font-size: var(--font-size-lg); font-weight: 700; }
+.search-bar { width: 220px; }
+.input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+.input:focus { border-color: var(--accent); }
 
-.agent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-
+.agent-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
 .agent-card {
-  padding: 16px;
-  background: var(--bg);
-  border-radius: 8px;
+  padding: var(--space-4);
+  background: var(--bg-secondary);
   border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  transition: all var(--transition-fast);
+}
+.agent-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
 }
 
-.agent-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.card-header { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
+.agent-id { font-weight: 600; font-size: var(--font-size-sm); }
+.card-module { font-size: var(--font-size-sm); color: var(--text-muted); margin-bottom: var(--space-2); }
 
-.agent-role {
-  font-size: 10px; font-weight: 600; padding: 2px 8px;
-  border-radius: 4px; text-transform: uppercase;
-}
-.agent-role.expert { background: #1e3a5f; color: #60a5fa; }
-.agent-role.supervisor { background: #3b1f5e; color: #c084fc; }
-.agent-role.integrator { background: #1a3a2a; color: #4ade80; }
-.agent-role.plugin { background: #3a2a1a; color: #fbbf24; }
-
-.agent-id { font-weight: 600; font-size: 14px; }
-.agent-module { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
-
-.agent-caps { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.card-caps { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-bottom: var(--space-2); }
 .cap-tag {
-  font-size: 11px; padding: 2px 6px;
-  background: var(--bg-hover); border-radius: 3px;
+  font-size: var(--font-size-xs);
+  padding: 1px 6px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
   color: var(--text-muted);
 }
+.cap-more { font-size: var(--font-size-xs); color: var(--text-muted); }
 
-.agent-deps { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-.agent-actions { margin-top: 8px; }
+.card-deps {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-bottom: var(--space-3);
+}
 
-.btn {
-  padding: 6px 14px;
-  border-radius: 6px;
+.btn-sm {
+  padding: var(--space-1) var(--space-3);
+  background: transparent;
   border: 1px solid var(--border);
-  background: var(--bg-hover);
-  color: var(--text);
+  border-radius: var(--radius-md);
+  color: var(--accent);
+  font-size: var(--font-size-xs);
   cursor: pointer;
-  font-size: 13px;
+  transition: all var(--transition-fast);
 }
-.btn.primary { background: var(--primary); }
-.btn.small { padding: 4px 10px; font-size: 12px; }
+.btn-sm:hover { border-color: var(--accent); background: var(--accent-light); }
 
-.result-box {
-  padding: 16px;
-  background: var(--bg);
-  border-radius: 6px;
-  font-size: 13px;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.empty { color: var(--text-muted); text-align: center; padding: 40px; }
+.empty { text-align: center; color: var(--text-muted); padding: var(--space-8); }
 </style>
