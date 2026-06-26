@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import time
 import uuid
-from contextlib import contextmanager
 from datetime import datetime
 
 
@@ -43,14 +42,19 @@ class Tracer:
         self._started = time.time()
         self._stack: list[str] = []
 
-    @contextmanager
     def span(self, name: str, **attributes):
         """
-        创建嵌套 span 的上下文管理器。
+        创建嵌套 span 并返回 span dict。
+
+        返回的 span 是普通 dict，可直接修改 attributes 和 status。
+        栈由 tracer 自动管理，无需 with 语句。
 
         Args:
             name: span 名称
             **attributes: 自定义属性
+
+        Returns:
+            span dict
         """
         span = {
             "trace_id": self.trace_id,
@@ -63,20 +67,20 @@ class Tracer:
         }
         self.spans.append(span)
         self._stack.append(span["span_id"])
-        try:
-            yield span
-        except Exception as e:
-            span["status"] = "error"
-            span["attributes"]["error"] = f"{type(e).__name__}: {e}"
-            raise
-        finally:
+        return span
+
+    def finish_span(self, span: dict) -> None:
+        """手动结束 span，记录耗时"""
+        if span["duration_ms"] == 0:
             span["duration_ms"] = round((time.time() - self._started) * 1000 - span["start_ms"], 1)
+        if self._stack and self._stack[-1] == span["span_id"]:
             self._stack.pop()
 
     def event(self, name: str, **attributes) -> None:
         """记录零时长事件"""
-        with self.span(name, **attributes):
-            pass
+        span = self.span(**attributes)
+        span["name"] = name
+        self.finish_span(span)
 
     def summary(self) -> dict:
         """返回 trace 摘要"""
