@@ -7,7 +7,7 @@ tools/quality/convergence_detector.py
 如果连续 2 次修复后质量未提升，提前终止。
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Tuple
 
 

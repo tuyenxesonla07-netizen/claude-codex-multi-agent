@@ -4,8 +4,8 @@
 LLM Provider 抽象基类
 """
 
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any
+from dataclasses import dataclass
+from typing import Optional, Any
 from abc import ABC, abstractmethod
 
 
