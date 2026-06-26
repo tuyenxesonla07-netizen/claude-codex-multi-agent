@@ -39,7 +39,7 @@ def build_pipeline_workflow(compiled_pipeline, llm_provider=None,
     Returns:
         Workflow instance (已注册到全局 WorkflowEngine)
     """
-    from tools.workflow.engine import WorkflowEngine, Workflow, WorkflowNode, NodeType
+    from tools.workflow.engine import WorkflowEngine
 
     engine = WorkflowEngine()
 
@@ -47,13 +47,6 @@ def build_pipeline_workflow(compiled_pipeline, llm_provider=None,
     edges = []
 
     # Create nodes for each module in implementation order
-    prev_node_id = None
-    for i, module_name in enumerate(compiled_pipeline.implementation_order):
-        node_id = f"module_{module_name}"
-
-        # LLM node for expert analysis
-        strategy = compiled_pipeline.context_strategies.get(module_name)
-        prompt = ""
         if hasattr(compiled_pipeline, 'prompt_template') and compiled_pipeline.prompt_template:
             prompt = compiled_pipeline.prompt_template.template_str
 

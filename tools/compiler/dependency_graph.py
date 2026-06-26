@@ -6,7 +6,7 @@ tools/compiler/dependency_graph.py
 """
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Set, Tuple, Optional
+from typing import List, Dict, Set, Tuple
 from collections import deque
 
 

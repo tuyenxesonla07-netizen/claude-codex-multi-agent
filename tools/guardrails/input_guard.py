@@ -116,7 +116,7 @@ class InputGuard:
                 return InputCheckResult(
                     passed=False,
                     text="",
-                    reason=f"检测到疑似提示词注入/危险指令",
+                    reason="检测到疑似提示词注入/危险指令",
                 )
 
         # 3. PII 脱敏

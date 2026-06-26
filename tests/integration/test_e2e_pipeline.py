@@ -12,9 +12,8 @@ import unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from tools.compiler.pipeline_compiler import PipelineCompiler, CompiledPipeline
-from tools.stores import RequirementStore, InterfaceStore, SpecStore
 from tools.messaging import MessageBus, Message
-from tools.quality import QualityEvaluator, ReviewResult, ConvergenceDetector
+from tools.quality import QualityEvaluator, ConvergenceDetector
 
 
 # 模块文件名 → 模块名的映射

@@ -14,11 +14,9 @@
     BranchNode — 条件分支
 """
 
-import ast
 import logging
-import traceback
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Dict, List
 from enum import Enum
 
 logger = logging.getLogger(__name__)

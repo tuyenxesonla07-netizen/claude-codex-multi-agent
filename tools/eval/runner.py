@@ -13,13 +13,12 @@ Eval Runner — 运行所有测试用例并生成报告。
 
 from __future__ import annotations
 
-import ast
 import logging
 import random
-from typing import Callable, Optional
+from typing import Callable
 
 from tools.eval.cases import EVAL_CASES
-from tools.eval.assertions import ASSERTION_FUNCTIONS, BehavioralCheckResult
+from tools.eval.assertions import ASSERTION_FUNCTIONS
 from tools.eval.report import EvalReport
 
 logger = logging.getLogger(__name__)

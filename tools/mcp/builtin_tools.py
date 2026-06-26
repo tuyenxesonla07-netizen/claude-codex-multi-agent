@@ -14,8 +14,6 @@
 import ast
 import logging
 import math
-import json
-from typing import Dict
 
 from tools.mcp.tool_registry import ToolRegistry
 

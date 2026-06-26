@@ -10,7 +10,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from tools.compiler.fix_deriver import FixInstructionDeriver, FixTemplate
+from tools.compiler.fix_deriver import FixInstructionDeriver
 
 
 class TestFixInstructionDeriver(unittest.TestCase):

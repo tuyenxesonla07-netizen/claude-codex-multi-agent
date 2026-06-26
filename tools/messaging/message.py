@@ -77,7 +77,6 @@ class Message:
 
     def is_expired(self) -> bool:
         """检查消息是否过期"""
-        ttl = self.meta.get("ttl_ms", 30000)
         # 简化：实际应该比较 timestamp + ttl
         return False
 

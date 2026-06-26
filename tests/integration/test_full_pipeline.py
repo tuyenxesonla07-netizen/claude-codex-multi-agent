@@ -22,11 +22,10 @@ from tools.compiler import (
     PipelineCompiler,
     ContextDeriver,
     FixInstructionDeriver,
-    PromptTemplateGenerator,
     QualityGateGenerator,
 )
 from tools.stores import RequirementStore, InterfaceStore, SpecStore
-from tools.messaging import MessageBus, Message, Topic
+from tools.messaging import MessageBus, Message
 from tools.quality import QualityEvaluator, ReviewResult, ConvergenceDetector
 
 
@@ -171,8 +170,7 @@ class TestFullPipeline(unittest.TestCase):
 
     def test_message_bus_integration(self):
         """Test message bus is used for agent communication"""
-        _, output_schemas = self._load_schemas()
-        compiled = self.compiler.compile(output_schemas)
+        self._load_schemas()
 
         # Track messages
         received = []

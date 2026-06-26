@@ -18,8 +18,7 @@ MCP 服务端实现。
 
 import json
 import logging
-import asyncio
-from typing import Any, Dict, Optional
+from typing import Dict
 
 from tools.mcp.tool_registry import ToolRegistry
 

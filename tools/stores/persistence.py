@@ -7,6 +7,7 @@ requirements, interfaces, and specs survive process restarts.
 """
 
 import json
+import logging
 import sqlite3
 import threading
 from pathlib import Path

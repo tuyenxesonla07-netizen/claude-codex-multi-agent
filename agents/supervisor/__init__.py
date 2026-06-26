@@ -14,10 +14,10 @@ Responsibilities:
 import ast
 import logging
 import os
+from dataclasses import dataclass, field
 from typing import Dict, List, Any, Optional
 
 logger = logging.getLogger(__name__)
-from dataclasses import dataclass, field
 
 
 @dataclass
@@ -280,7 +280,7 @@ class CodexSupervisor:
                 "approved": bool,
             }
         """
-        from tools.agent import ClaudeCodeExecutor, ExecutionBackend, TaskSpec
+        from tools.agent import ClaudeCodeExecutor, ExecutionBackend, TaskSpec  # noqa: F401
 
         # Use provided backend or create default ClaudeCodeBackend
         if backend is None:
@@ -530,7 +530,7 @@ class CodexSupervisor:
             status = "OK" if code else "FAIL"
             print(f"  [{status}] {module_name}: {lines} lines")
             total_lines += lines
-        print(f"  --------------------------------")
+        print("  --------------------------------")
         success_count = len([c for c in code_artifact.values() if c])
         print(f"  Total: {total_lines} lines ({success_count}/{len(code_artifact)} succeeded)")
         print("=" * 60 + "\n")
