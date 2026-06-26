@@ -180,7 +180,7 @@ class TestExpertAgentWiring(unittest.TestCase):
         expert = self.system.expert_agents["auth"]
 
         # Valid input (has required fields from auth_input.json)
-        valid = {"requirement": "test", "constraints": [], "dependency_interfaces": {}}
+        valid = {"requirement": "test", "constraints": [], "dependencies": []}
         self.assertTrue(expert.validate_input(valid))
 
         # Invalid input (missing required field)
