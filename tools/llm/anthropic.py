@@ -10,7 +10,6 @@ Anthropic Claude LLM Provider
 import json
 import os
 import re
-from typing import Optional
 
 from tools.llm.base import LLMProvider, LLMResponse
 

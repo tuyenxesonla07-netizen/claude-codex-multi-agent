@@ -6,7 +6,6 @@ tools/stores/spec_store.py
 读取时机: Prompt Agent 整合时
 """
 
-import json
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 

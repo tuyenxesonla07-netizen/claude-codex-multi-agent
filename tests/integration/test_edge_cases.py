@@ -8,7 +8,6 @@ Tests boundary conditions, error handling, and unusual inputs.
 
 import os
 import sys
-import json
 import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -21,7 +20,6 @@ from tools.compiler import (
     QualityGateGenerator,
 )
 from tools.compiler.dependency_graph import DependencyGraph
-from tools.stores import RequirementStore, InterfaceStore, SpecStore
 from tools.messaging import MessageBus
 from tools.quality import QualityEvaluator, ReviewResult, ConvergenceDetector
 

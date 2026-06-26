@@ -17,8 +17,7 @@ Skill 管理器 — 按相关性选择技能并注入 prompt。
 from __future__ import annotations
 
 import logging
-import re
-from typing import List, Optional
+from typing import List
 
 from tools.skills.loader import Skill, SkillLoader
 

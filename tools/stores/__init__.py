@@ -14,7 +14,7 @@ from tools.stores.spec_store import SpecStore, ModuleSpec
 
 # Optional PostgreSQL store
 try:
-    from tools.stores.postgres import AsyncPostgresStore, DocumentChunk
+    from tools.stores.postgres import AsyncPostgresStore, DocumentChunk  # noqa: F401
     _POSTGRES_AVAILABLE = True
 except ImportError:
     _POSTGRES_AVAILABLE = False

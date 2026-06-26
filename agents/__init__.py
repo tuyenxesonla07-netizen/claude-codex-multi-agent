@@ -7,7 +7,7 @@ agents/supervisor/  → Codex 主管 Agent
 agents/experts/     → 专家子 Agent（按功能模块）
 """
 
-from typing import Protocol, Dict, Any, Optional
+from typing import Protocol, Dict
 
 
 class AgentProtocol(Protocol):

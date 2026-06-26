@@ -142,12 +142,11 @@ class ExpertAgent:
             f"## Module: {self.module_name}\n"
             f"## Requirement\n{input_data.requirement}\n\n"
             f"## Constraints\n" + "\n".join(f"- {c}" for c in input_data.constraints) + "\n\n"
-            f"## Dependencies\n"
+            "## Dependencies\n"
             + "\n".join(f"- {d}" for d in input_data.dependency_interfaces.keys())
             + "\n\n"
             + "## Global Constraints\n"
             + "\n".join(f"- {k}: {v}" for k, v in input_data.global_constraints.items())
-            + "\n\nProduce a JSON module specification."
         )
 
         return system_prompt, user_prompt
