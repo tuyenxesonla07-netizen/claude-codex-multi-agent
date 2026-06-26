@@ -8,7 +8,6 @@ Mock LLM Provider — 无需 API key，返回预设结果
 """
 
 import json
-import re
 from typing import Dict, List
 
 from tools.llm.base import LLMProvider, LLMResponse

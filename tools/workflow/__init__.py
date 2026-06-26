@@ -47,6 +47,9 @@ def build_pipeline_workflow(compiled_pipeline, llm_provider=None,
     edges = []
 
     # Create nodes for each module in implementation order
+    for i, module_name in enumerate(getattr(compiled_pipeline, 'implementation_order', [])):
+        node_id = f"module_{module_name}"
+        prompt = ""
         if hasattr(compiled_pipeline, 'prompt_template') and compiled_pipeline.prompt_template:
             prompt = compiled_pipeline.prompt_template.template_str
 

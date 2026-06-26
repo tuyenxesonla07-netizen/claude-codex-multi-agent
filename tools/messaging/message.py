@@ -4,7 +4,7 @@ tools/messaging/message.py
 统一消息信封 — 所有 Agent 间通信的消息格式
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, Any, Optional
 import uuid
