@@ -181,10 +181,10 @@ class ClaudeCodeExecutor:
     ) -> Any:
         """Call provider.complete with a hard timeout.
 
-        Uses asyncio.wait_for when possible, otherwise falls back to
-        threading-based timeout.
+        Uses asyncio.wait_for + asyncio.to_thread for non-blocking timeout
+        control — consistent with the async-first architecture.
         """
-        import concurrent.futures
+        import asyncio
 
         def _call():
             return self._provider.complete(
@@ -196,14 +196,13 @@ class ClaudeCodeExecutor:
                 **kwargs,
             )
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-            future = pool.submit(_call)
-            try:
-                return future.result(timeout=timeout)
-            except concurrent.futures.TimeoutError:
-                raise TimeoutError(
-                    f"LLM call exceeded {timeout}s timeout"
-                )
+        async def _async_call():
+            return await asyncio.wait_for(
+                asyncio.to_thread(_call),
+                timeout=timeout,
+            )
+
+        return asyncio.run(_async_call())
 
     @staticmethod
     def _check_interface_consistency(code: str, spec: Dict[str, Any], module_name: str) -> List[str]:
