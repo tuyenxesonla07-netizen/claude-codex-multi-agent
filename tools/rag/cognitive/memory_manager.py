@@ -450,27 +450,9 @@ class MemoryManager:
 # ---------------------------------------------------------------------------
 
 def _tokenize(text: str) -> list[str]:
-    """Language-aware tokenization with jieba for Chinese text.
-
-    Uses lazy import with a guard: if jieba is not already in sys.modules,
-    attempt a quick import. If it's not available or takes too long, fall back
-    to regex tokenization.
-    """
-    import sys
-
-    if "jieba" in sys.modules:
-        import jieba
-        tokens = list(jieba.cut(text, cut_all=False))
-        expanded: list[str] = []
-        for tok in tokens:
-            expanded.extend(w for w in tok.lower().split() if w)
-        return expanded if expanded else text.lower().split()
-
-    # jieba not pre-imported — use regex fallback to avoid blocking on import
-    import re
-    # Split into Chinese characters and alphanumeric tokens
-    tokens = re.findall(r"[a-z0-9]+|[一-鿿]", text.lower())
-    return tokens if tokens else text.lower().split()
+    """Language-aware tokenizer — delegates to pluggable strategy."""
+    from tools.rag.tokenizer import tokenize
+    return tokenize(text)
 
 
 def _split_sentences(text: str) -> list[str]:

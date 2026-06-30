@@ -64,7 +64,9 @@ class ValidationReport:
 
 
 def validate_json_schemas(schemas_dir: str = "config/schemas") -> ValidationReport:
-    """验证所有 JSON Schema 文件格式合法。"""
+    """验证所有 JSON Schema 文件格式合法，支持 $ref / allOf / x-extends 继承。"""
+    from tools.rag.schema_composer import SchemaComposer
+
     report = ValidationReport()
 
     if not os.path.isdir(schemas_dir):
@@ -79,11 +81,13 @@ def validate_json_schemas(schemas_dir: str = "config/schemas") -> ValidationRepo
         report.add("warning", "No JSON Schema files found", schemas_dir)
         return report
 
+    composer = SchemaComposer(base_dir=schemas_dir)
+
     for filename in schema_files:
         filepath = os.path.join(schemas_dir, filename)
         try:
             with open(filepath, "r", encoding="utf-8") as f:
-                data = json.load(f)
+                raw = json.load(f)
         except json.JSONDecodeError as e:
             report.add("error", f"Invalid JSON: {e}", filename)
             continue
@@ -91,9 +95,15 @@ def validate_json_schemas(schemas_dir: str = "config/schemas") -> ValidationRepo
             report.add("error", f"Cannot read file: {e}", filename)
             continue
 
-        # 检查必需字段
-        if not isinstance(data, dict):
+        if not isinstance(raw, dict):
             report.add("error", "Schema root must be a JSON object", filename)
+            continue
+
+        # Resolve inheritance / composition before validation
+        try:
+            data = composer.resolve(raw)
+        except (FileNotFoundError, KeyError, ValueError) as e:
+            report.add("error", f"Schema composition failed: {e}", filename)
             continue
 
         schema_type = data.get("type")
@@ -102,7 +112,6 @@ def validate_json_schemas(schemas_dir: str = "config/schemas") -> ValidationRepo
         elif schema_type != "object":
             report.add("warning", f"Root type is '{schema_type}', expected 'object'", filename)
 
-        # 检查 input schema 有 required 和 properties
         if "_input." in filename:
             if "required" not in data:
                 report.add("warning", "Input schema missing 'required' field", filename)
@@ -110,7 +119,6 @@ def validate_json_schemas(schemas_dir: str = "config/schemas") -> ValidationRepo
             if props and "requirement" not in props:
                 report.add("warning", "Input schema missing 'requirement' property", filename)
 
-        # 检查 output schema 有 module_spec
         if "_output." in filename:
             props = data.get("properties", {})
             if "module_spec" not in props:

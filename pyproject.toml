@@ -82,3 +82,20 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W"]
 ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# Project root dir has hyphens in name — N999 is unavoidable for all packages here
+"**/__init__.py" = ["N999"]
+"**/__main__.py" = ["N999"]
+# Deferred imports below class/function definitions (intentional for circular-import avoidance)
+"tools/hitl/approval.py" = ["E402"]
+"tools/server/app.py" = ["E402"]
+"tools/workflow/engine.py" = ["E402"]
+"tools/workflow/execution.py" = ["E402"]
+# Test files: E402 deferred imports, N801 Gap-numbered class names are intentional
+"tests/hitl/test_approval.py" = ["E402"]
+"tests/langgraph_adapter/test_graph_builder.py" = ["E402"]
+"tests/observability/test_observability.py" = ["N801"]
+"tests/security/test_cicd_docs.py" = ["N801"]
+"tests/security/test_docker_hardening.py" = ["N801"]
+"tests/security/test_threat_model.py" = ["N801"]

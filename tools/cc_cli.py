@@ -672,11 +672,11 @@ def _cmd_eval(args: argparse.Namespace) -> None:
     """运行评估套件。"""
     print("\n  CC Eval Suite")
     print("  ─────────────────────────────")
-
     try:
-        from tools.eval.runner import run_evaluations
-
-        run_evaluations()
+        from tools.eval.runner import EvalRunner
+        runner = EvalRunner(verbose=True)
+        report = runner.run_all()
+        print(f"  {report.cases_passed}/{report.cases_total} passed ({report.pass_percentage:.0f}%)")
     except Exception as e:
         print(f"  ✗ Eval error: {e}")
         print("  ℹ Run: python -m tools.eval.runner")

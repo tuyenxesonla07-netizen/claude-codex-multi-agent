@@ -16,13 +16,10 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from agents.pipeline_phase1 import Phase1Pipeline
-from agents.pipeline_phase2 import Phase2Pipeline
-
 logger = logging.getLogger(__name__)
 
 
-class ClaudeCodexMultiAgent(Phase1Pipeline, Phase2Pipeline):
+class ClaudeCodexMultiAgent:
     """
     Claude-Codex Multi-Agent Pipeline — Full Architecture.
 
@@ -174,6 +171,17 @@ class ClaudeCodexMultiAgent(Phase1Pipeline, Phase2Pipeline):
 
         # ── Code Writer ──
         self._code_writer_config = CodeWriterConfig()
+
+        # ── Phase methods (composition over inheritance) ──
+        # Phase1Pipeline and Phase2Pipeline methods use `self` — bind them here
+        # so they operate on this instance without multi-inheritance MRO issues.
+        import types
+        from agents.pipeline_phase1 import Phase1Pipeline
+        from agents.pipeline_phase2 import Phase2Pipeline
+        for _cls in (Phase1Pipeline, Phase2Pipeline):
+            for _name, _fn in vars(_cls).items():
+                if callable(_fn) and not _name.startswith("__"):
+                    setattr(self, _name, types.MethodType(_fn, self))
 
     def compile_pipeline(self, module_schemas, input_schemas=None):
         return self.compiler.compile(
