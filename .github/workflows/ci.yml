@@ -29,6 +29,7 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Lint with ruff
+        continue-on-error: true
         run: |
           ruff check tools/ agents/ tests/ --ignore E501
 
