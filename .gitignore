@@ -226,6 +226,11 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
+# CI artifacts
+ci-artifacts/
+test-output-*.txt
+test-results-*.xml
+
 # Runtime database files
 tools/data/
 *.sqlite3
