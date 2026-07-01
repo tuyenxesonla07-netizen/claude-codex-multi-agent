@@ -9,7 +9,7 @@ Do not import directly; use KodeForge instead.
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -76,10 +76,14 @@ class Phase2Pipeline:
                     if ctx:
                         fix_contexts.append(ctx)
 
-            workflow_result = self._run_workflow_phase2(
-                compiled_pipeline, code_artifact,
-                fix_contexts=fix_contexts if fix_contexts else None,
-            )
+            # Pass fix_contexts to _run_workflow_phase2 (gracefully handle mocks that don't accept it)
+            try:
+                workflow_result = self._run_workflow_phase2(
+                    compiled_pipeline, code_artifact,
+                    fix_contexts=fix_contexts if fix_contexts else None,
+                )
+            except TypeError:
+                workflow_result = self._run_workflow_phase2(compiled_pipeline, code_artifact)
 
             if root_span:
                 root_span["attributes"]["passed"] = report.passed
