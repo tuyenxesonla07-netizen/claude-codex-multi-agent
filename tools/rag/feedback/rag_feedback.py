@@ -145,6 +145,7 @@ class FeedbackStore:
 
     @property
     def size(self) -> int:
+        """Return the number of items."""
         return len(self._samples)
 
     def clear(self) -> None:
@@ -315,10 +316,12 @@ class FeedbackRanker:
 
     @property
     def step_count(self) -> int:
+        """Return the step count."""
         return self._step_count
 
     @property
     def history(self) -> list[FeedbackStepResult]:
+        """Return step history."""
         return list(self._history)
 
     def __repr__(self) -> str:
@@ -471,10 +474,12 @@ class FullFeedbackRanker:
 
     @property
     def step_count(self) -> int:
+        """Return the step count."""
         return self._step_count
 
     @property
     def history(self) -> list[FeedbackStepResult]:
+        """Return step history."""
         return list(self._history)
 
     def get_weights_summary(self) -> dict:

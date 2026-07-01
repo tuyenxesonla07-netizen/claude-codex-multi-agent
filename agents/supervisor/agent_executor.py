@@ -348,6 +348,7 @@ class MergeCoordinator:
     # -- registration -------------------------------------------------------
 
     def register_target(
+        """Register a generation target."""
         self,
         module_name: str,
         file_path: str,
@@ -359,6 +360,7 @@ class MergeCoordinator:
             self._targets[file_path]["primary"] = True
 
     def register_generation(
+        """Register a generation result."""
         self,
         file_path: str,
         module_name: str,
@@ -396,6 +398,7 @@ class MergeCoordinator:
         return dict(self._resolutions)
 
     def get_resolution_report(self) -> Dict[str, Any]:
+        """Return the resolution report."""
         return {
             "resolutions": {
                 fp: len(code) for fp, code in self._resolutions.items()
@@ -424,6 +427,7 @@ class ComputerUseBackend(ABC):
 
     @abstractmethod
     def run(self, code_artifact: Dict[str, str]) -> ComputerUseReport:
+        """Run the main logic."""
         ...
 
 
@@ -434,6 +438,7 @@ class CodexComputerUseBackend(ComputerUseBackend):
     available = True
 
     def run(self, code_artifact: Dict[str, str]) -> ComputerUseReport:
+        """Run the main logic."""
         # In production this would call the Codex computer-use API.
         return ComputerUseReport(verified=True, output="Codex backend stub")
 
@@ -445,6 +450,7 @@ class ClaudeComputerUseBackend(ComputerUseBackend):
     available = True
 
     def run(self, code_artifact: Dict[str, str]) -> ComputerUseReport:
+        """Run the main logic."""
         return ComputerUseReport(verified=True, output="Claude backend stub")
 
 

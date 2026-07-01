@@ -9,20 +9,17 @@ Do not import directly; use KodeForge instead.
 from __future__ import annotations
 
 import logging
-import os
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 
-
 class Phase1Pipeline:
     """Phase 1 logic — attached to KodeForge via composition."""
 
     def run_phase1(self, user_requirement) -> dict:
         """Phase 1: Requirement → Module Specs → Code Generation."""
-        from tools.observability import Tracer, PipelineMetrics
 
         root_span = self.tracer.span("phase1", input_preview=user_requirement[:80]) if self.enable_observability else None
 
@@ -315,9 +312,9 @@ class Phase1Pipeline:
                 root_span["attributes"]["workflow_status"] = workflow_result.get("status", "skipped")
                 root_span["status"] = "ok"
 
-            print(f"[MultiAgent] {summary}")
+            logger.info("[MultiAgent] %s", summary)
             for mod, code in code_artifact.items():
-                print(f"  {mod}: {code.count(chr(10)) + 1} lines")
+                logger.info("  %s: %s lines", mod, code.count("\n") + 1)
 
             return {
                 "blocked": False, "awaiting_approval": False, "reason": "",

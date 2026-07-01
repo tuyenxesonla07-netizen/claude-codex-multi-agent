@@ -131,6 +131,7 @@ class Tracer:
         lines = [f"trace {self.trace_id} ({datetime.now().strftime('%H:%M:%S')})"]
 
         def walk(parent_id: str | None, depth: int) -> None:
+            """Walk the telemetry tree."""
             for span in children.get(parent_id, []):
                 mark = "x" if span["status"] == "error" else "*"
                 attrs = ", ".join(f"{k}={v}" for k, v in span["attributes"].items())
@@ -335,6 +336,7 @@ class PipelineMetrics:
         self.per_tool_metrics[tool_name]["tokens"] += tokens
 
     def to_dict(self) -> dict:
+        """Convert to dictionary representation."""
         return {
             "session_id": self.session_id,
             "total_steps": self.total_steps,

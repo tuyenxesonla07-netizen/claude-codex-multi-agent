@@ -7,6 +7,7 @@ import argparse
 
 
 def cmd_model_list(args: argparse.Namespace) -> None:
+    """List available models."""
     from tools.llm.model_switcher import ModelRegistry
 
     registry = ModelRegistry()
@@ -31,6 +32,7 @@ def cmd_model_list(args: argparse.Namespace) -> None:
 
 
 def cmd_model_switch(args: argparse.Namespace) -> None:
+    """Switch the active model."""
     from tools.llm.model_switcher import ModelSwitcher, ModelRegistry
 
     registry = ModelRegistry()
@@ -45,6 +47,7 @@ def cmd_model_switch(args: argparse.Namespace) -> None:
 
 
 def cmd_model_test(args: argparse.Namespace) -> None:
+    """Test the current model."""
     from tools.llm.model_switcher import ModelSwitcher, ModelRegistry
 
     registry = ModelRegistry()

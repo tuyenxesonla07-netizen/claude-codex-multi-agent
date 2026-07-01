@@ -81,6 +81,7 @@ class AutoApprovalHandler(ApprovalHandler):
         self._risk_order = {level: i for i, level in enumerate(RISK_LEVELS)}
 
     def request_approval(self, tool_name: str, args: dict, risk_level: str,
+        """Request human approval."""
                          context: dict = None) -> ApprovalResult:
         risk_idx = self._risk_order.get(risk_level, 0)
         threshold_idx = self._risk_order.get(self.auto_under_risk, 0)
@@ -100,6 +101,7 @@ class AutoApprovalHandler(ApprovalHandler):
         )
 
     def callback(self, approval_id: str, approved: bool, comment: str = "") -> None:
+        """Handle the approval callback."""
         logger.info("[AutoApproval] callback %s: %s", approval_id, approved)
 
 
@@ -122,6 +124,7 @@ class ManualApprovalHandler(ApprovalHandler):
         self._pending: dict[str, ApprovalRequest] = {}
 
     def request_approval(self, tool_name: str, args: dict, risk_level: str,
+        """Request human approval."""
                          context: dict = None) -> ApprovalResult:
         approval_id = f"approval_{uuid.uuid4().hex[:12]}"
 
@@ -543,6 +546,7 @@ class EnterpriseApprovalHandler(ApprovalHandler):
     def _make_timeout_handler(self, approval_id: str, chain: ApprovalChain) -> Any:
         """创建 SLA 超时处理器闭包。"""
         async def handler(_approval_id: str, level: int) -> None:
+            """Handle the approval flow."""
             record = self._records.get(approval_id)
             if record is None or record.state_machine.is_terminal:
                 return

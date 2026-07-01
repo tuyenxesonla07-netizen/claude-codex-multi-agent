@@ -230,6 +230,7 @@ class SensitiveFilter(logging.Filter):
     """日志过滤器 — 自动脱敏敏感信息"""
 
     def filter(self, record: logging.LogRecord) -> bool:
+        """Filter a log record."""
         if isinstance(record.msg, str):
             record.msg = _redact_sensitive(record.msg)
         if record.args:
@@ -250,6 +251,7 @@ class RequestIdFilter(logging.Filter):
     """日志过滤器 — 自动注入 request_id"""
 
     def filter(self, record: logging.LogRecord) -> bool:
+        """Filter a log record."""
         record.request_id = request_id_var.get("")  # type: ignore[attr-defined]
         return True
 
@@ -258,6 +260,7 @@ class JsonFormatter(logging.Formatter):
     """JSON 格式日志 Formatter"""
 
     def format(self, record: logging.LogRecord) -> str:
+        """Format the log record."""
         from datetime import datetime
 
         log_entry = {

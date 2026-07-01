@@ -189,6 +189,7 @@ class InMemoryVectorStore:
 
     @property
     def count(self) -> int:
+        """Return the count."""
         return len(self._doc_ids)
 
     def clear(self) -> None:
@@ -395,6 +396,7 @@ class MilvusVectorStore:
 
     @property
     def count(self) -> int:
+        """Return the count."""
         coll = self._get_collection()
         return coll.num_entities
 
@@ -543,6 +545,7 @@ class ChromaVectorStore:
 
     @property
     def count(self) -> int:
+        """Return the count."""
         coll = self._get_collection()
         return coll.count()
 

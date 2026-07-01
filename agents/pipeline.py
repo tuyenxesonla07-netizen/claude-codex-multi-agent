@@ -18,7 +18,6 @@ from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
-
 class KodeForge:
     """
     KodeForge Pipeline — Full Architecture.
@@ -63,9 +62,8 @@ class KodeForge:
         from tools.memory import Memory, SessionState
         from tools.hitl import AutoApprovalHandler, ManualApprovalHandler, AuditLog
         from tools.observability import Tracer, PipelineMetrics
-        from tools.plugins import PluginSkillRegistry
         from tools.workflow import WorkflowEngine
-        from agents.supervisor.agent_executor import write_code_artifacts, CodeWriterConfig
+        from agents.supervisor.agent_executor import CodeWriterConfig
         from agents.experts import create_expert_agents
 
         # ── Core stores ──
@@ -149,13 +147,12 @@ class KodeForge:
             self.metrics = PipelineMetrics()
 
         # ── Skills (Plugin-based) ──
-        from tools.plugins import PluginSkillRegistry
 
         self.skill_manager = PluginSkillRegistry(plugins_dir=Path("plugins"))
         self.skill_manager.load()
 
         # ── Agents ──
-        from agents.supervisor import CodexSupervisor, Requirement
+        from agents.supervisor import CodexSupervisor
 
         self.agents_config = self._load_agents_config(config_dir)
         self.supervisor = CodexSupervisor(self.agents_config)
@@ -184,6 +181,7 @@ class KodeForge:
                     setattr(self, _name, types.MethodType(_fn, self))
 
     def compile_pipeline(self, module_schemas, input_schemas=None) -> CompiledPipeline:
+        """Compile the pipeline from requirement."""
         return self.compiler.compile(
             module_schemas,
             input_schemas=input_schemas,
@@ -435,7 +433,6 @@ class KodeForge:
             logger.warning("SQLite store detection failed: %s", e)
         return False
 
-
 # ---------------------------------------------------------------------------
 # Layer 1 + Layer 2 Public API
 # ---------------------------------------------------------------------------
@@ -469,7 +466,6 @@ def generate_code(
         enable_guardrails=enable_guardrails,
     )
     return pipeline.run(requirement)
-
 
 class Pipeline:
     """Standard pipeline interface.
@@ -509,6 +505,7 @@ class Pipeline:
 
     @property
     def inner(self) -> "KodeForge":
+        """Inner implementation."""
         if self._inner is None:
             self._inner = KodeForge(
                 config_dir=self.config_dir,
@@ -563,7 +560,6 @@ class Pipeline:
     def get_observability(self) -> Dict[str, Any]:
         """Get observability summary from the last run."""
         return self.inner.get_observability_summary()
-
 
 def _create_pipeline(
     config_dir: str,

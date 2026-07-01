@@ -232,6 +232,7 @@ class UserModel:
             self.expertise_level = "beginner"
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary representation."""
         return {
             "user_id": self.user_id,
             "expertise_level": self.expertise_level,
@@ -246,6 +247,7 @@ class UserModel:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> UserModel:
+        """Create instance from dictionary."""
         if "topic_counts" in data:
             data["topic_counts"] = defaultdict(int, data["topic_counts"])
         field_names = set(cls.__dataclass_fields__.keys())
@@ -277,6 +279,7 @@ class RetrievalStrategy:
     explain: bool = False
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary representation."""
         return {
             "mode": self.mode,
             "use_bm25": self.use_bm25,

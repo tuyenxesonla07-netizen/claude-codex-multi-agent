@@ -415,10 +415,12 @@ class RAGPipeline:
 
     @property
     def documents(self) -> list[Document]:
+        """Return the document list."""
         return list(self._documents)
 
     @property
     def num_documents(self) -> int:
+        """Return the number of documents."""
         return len(self._documents)
 
     def __repr__(self) -> str:
