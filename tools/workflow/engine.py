@@ -113,7 +113,7 @@ class WorkflowEngine:
                  recovery_manager: RecoveryManager = None,
                  quality_loop: QualityLoop = None,
                  max_concurrent: int = 5,
-                 max_runs_cache: int = 1000):
+                 max_runs_cache: int = 1000) -> None:
         self._workflows: Dict[str, Workflow] = {}
         self._runs: OrderedDict[str, WorkflowResult] = OrderedDict()
         self._sub_tasks: Dict[str, SubTask] = {}
@@ -179,7 +179,7 @@ class WorkflowEngine:
         )
         self._sub_tasks[main_task.task_id] = main_task
 
-        async def _run_sub():
+        async def _run_sub() -> None:
             coros = []
             for sub in sub_tasks:
                 merged = {**inputs, **sub.get("inputs_override", {})}
@@ -221,7 +221,7 @@ class WorkflowEngine:
 
         # 如果有 RecoveryManager，使用分级恢复策略
         if self.recovery_manager:
-            async def _execute():
+            async def _execute() -> Any:
                 return await self._execute_node(node, inputs, context)
 
             recovery_result = await self.recovery_manager.execute_with_recovery(
@@ -395,7 +395,7 @@ class WorkflowEngine:
 
     async def _run_workflow(self, workflow: Workflow, result: WorkflowResult,
                             input_data: dict, context: dict = None,
-                            run_id: str = ""):
+                            run_id: str = "") -> None:
         """执行工作流（拓扑排序 + 并行执行 + 检查点 + 生命周期钩子 + 动态上下文）"""
         start_time = datetime.now(timezone.utc)
         completed_nodes = set()

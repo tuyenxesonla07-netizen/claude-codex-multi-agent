@@ -59,7 +59,7 @@ class AnthropicClaudeProvider(LLMProvider):
         model: str = None,
         max_tokens: int = 4096,
         base_url: str = None,
-    ):
+    ) -> None:
         api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
             raise ValueError(

@@ -81,7 +81,7 @@ class RecoveryManager:
         policy: RetryPolicy = None,
         degrade_fn: Callable = None,
         human_fn: Callable = None,
-    ):
+    ) -> None:
         self.policy = policy or RetryPolicy()
         self.degrade_fn = degrade_fn
         self.human_fn = human_fn
@@ -210,7 +210,7 @@ class QualityLoop:
         max_iterations: int = 3,
         quality_threshold: float = 0.8,
         convergence_detector = None,
-    ):
+    ) -> None:
         self.max_iterations = max_iterations
         self.quality_threshold = quality_threshold
 
@@ -307,7 +307,7 @@ class QualityLoop:
             history=history,
         )
 
-    def _review_output(self, code: str, node: Any, context: dict):
+    def _review_output(self, code: str, node: Any, context: dict) -> Any:
         """将 LLM 输出转为 ReviewResult"""
         from tools.quality.quality_evaluator import ReviewResult
 
@@ -463,7 +463,7 @@ class ResultAggregator:
         conflicts = agg.detect_conflicts()
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._results: list[AgentResult] = []
 
     def add(self, result: AgentResult) -> None:
@@ -587,7 +587,7 @@ class CircuitBreaker:
         failure_threshold: int = 5,
         recovery_timeout: float = 30.0,
         success_threshold: int = 1,
-    ):
+    ) -> None:
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
         self.success_threshold = success_threshold

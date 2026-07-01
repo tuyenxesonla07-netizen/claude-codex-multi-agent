@@ -29,7 +29,7 @@ class StoreDatabase:
         CREATE INDEX IF NOT EXISTS idx_store_type ON store_data(store_type);
     """
 
-    def __init__(self, db_path: Optional[str] = None):
+    def __init__(self, db_path: Optional[str] = None) -> None:
         if db_path is None:
             db_path = str(Path(__file__).parent.parent / "data" / "stores.db")
         self._db_path = db_path
@@ -84,10 +84,10 @@ class StoreDatabase:
     def close(self) -> None:
         self._conn.close()
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         return self
 
-    def __exit__(self, *args):
+    def __exit__(self, *args) -> None:
         self.close()
 
     def __del__(self) -> None:

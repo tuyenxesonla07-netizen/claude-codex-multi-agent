@@ -36,7 +36,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Iterator, Sequence
 
 import numpy as np
 
@@ -325,7 +325,7 @@ class RAGObserver:
         return self._structured_logger
 
     @contextmanager
-    def trace(self, name: str, **metadata: Any):
+    def trace(self, name: str, **metadata: Any) -> Iterator:
         """追踪一个操作。
 
         Usage:

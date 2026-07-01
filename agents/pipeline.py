@@ -55,7 +55,7 @@ class KodeForge:
         hitl_mode: str = "auto",
         hitl_auto_under_risk: str = "medium",
         max_workers: int = 3,
-    ):
+    ) -> None:
         from tools.stores import StoreDatabase, RequirementStore, InterfaceStore, SpecStore
         from tools.workflow.messaging import MessageBus
         from tools.quality import QualityEvaluator
@@ -492,7 +492,7 @@ class Pipeline:
         enable_observability: bool = True,
         hitl_mode: str = "auto",
         max_workers: int = 3,
-    ):
+    ) -> None:
         self.config_dir = config_dir
         self.llm_backend = llm_backend
         self.llm_api_key = llm_api_key

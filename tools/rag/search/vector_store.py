@@ -221,7 +221,7 @@ class MilvusVectorStore:
         self.metric_type = metric_type
         self._collection = None
 
-    def _get_collection(self):
+    def _get_collection(self) -> Any:
         """获取或创建 Milvus collection。"""
         if self._collection is not None:
             return self._collection
@@ -420,7 +420,7 @@ class ChromaVectorStore:
         self.persist_dir = persist_dir
         self._collection = None
 
-    def _get_collection(self):
+    def _get_collection(self) -> Any:
         """获取或创建 Chroma collection。"""
         if self._collection is not None:
             return self._collection

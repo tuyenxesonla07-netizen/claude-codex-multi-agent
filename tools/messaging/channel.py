@@ -107,11 +107,11 @@ class ChannelAdapter(ABC):
         """
         ...
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> None:
         await self.start()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         await self.stop()
 
 

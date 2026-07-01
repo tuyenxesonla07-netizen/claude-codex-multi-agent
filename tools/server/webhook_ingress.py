@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 def create_webhook_router(
     multichannel_bus: Any = None,
     path_prefix: str = "/api/v1/webhook",
-):
+) -> Any | None:
     """
     创建 FastAPI webhook 入口路由器。
 
@@ -44,7 +44,7 @@ def create_webhook_router(
     router = APIRouter(prefix=path_prefix, tags=["webhook"])
 
     @router.post("/{channel_name}")
-    async def receive_webhook(channel_name: str, request: Request):
+    async def receive_webhook(channel_name: str, request: Request) -> dict:
         """
         接收 webhook 事件。
 
@@ -71,7 +71,7 @@ def create_webhook_router(
         return {"status": "ok", "channel": channel_name}
 
     @router.get("/health")
-    async def webhook_health():
+    async def webhook_health() -> dict:
         """Webhook 健康检查端点。"""
         return {"status": "ok", "endpoints": [f"{path_prefix}/{{channel_name}}"]}
 

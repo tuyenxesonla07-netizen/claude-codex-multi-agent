@@ -104,11 +104,11 @@ class MultiChannelBus:
         """取消订阅（透传到内部总线）。"""
         self._inner.unsubscribe(topic, callback)
 
-    def receive(self, agent_id: str, timeout_ms: int = 5000):
+    def receive(self, agent_id: str, timeout_ms: int = 5000) -> Any:
         """同步接收（透传到内部总线）。"""
         return self._inner.receive(agent_id, timeout_ms)
 
-    def get_history(self, agent_id: str = None, limit: int = 100):
+    def get_history(self, agent_id: str = None, limit: int = 100) -> Any:
         """获取历史（透传到内部总线）。"""
         return self._inner.get_history(agent_id, limit)
 

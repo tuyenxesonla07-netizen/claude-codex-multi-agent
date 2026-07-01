@@ -16,6 +16,7 @@ import json
 import logging
 import re
 import uuid
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -87,10 +88,10 @@ class CorrelationIdMiddleware:
     存入 request.state.request_id，并在响应头中返回。
     """
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self.app = app
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope, receive, send) -> Any:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
@@ -106,7 +107,7 @@ class CorrelationIdMiddleware:
         scope["request_id"] = request_id
 
         # 包装 send 以注入响应头
-        async def send_wrapper(message):
+        async def send_wrapper(message) -> None:
             if message["type"] == "http.response.start":
                 headers = dict(message.get("headers", []))
                 headers[b"x-request-id"] = request_id.encode("utf-8")
@@ -123,15 +124,15 @@ class CorrelationIdMiddleware:
 class SecurityHeadersMiddleware:
     """添加安全响应头"""
 
-    def __init__(self, app):
+    def __init__(self, app) -> None:
         self.app = app
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope, receive, send) -> Any:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
 
-        async def send_wrapper(message):
+        async def send_wrapper(message) -> None:
             if message["type"] == "http.response.start":
                 headers = dict(message.get("headers", []))
                 headers[b"x-content-type-options"] = b"nosniff"
@@ -151,11 +152,11 @@ class SecurityHeadersMiddleware:
 class RequestSizeLimitMiddleware:
     """限制请求体大小"""
 
-    def __init__(self, app, max_size_bytes: int = 10 * 1024 * 1024):
+    def __init__(self, app, max_size_bytes: int = 10 * 1024 * 1024) -> None:
         self.app = app
         self.max_size_bytes = max_size_bytes
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope, receive, send) -> Any:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
@@ -203,11 +204,11 @@ class GuardrailsMiddleware:
     其他路径（health, sessions, docs 等）不做 guardrails 检查。
     """
 
-    def __init__(self, app, enabled: bool = True):
+    def __init__(self, app, enabled: bool = True) -> None:
         self.app = app
         self.enabled = enabled
 
-    async def __call__(self, scope, receive, send):
+    async def __call__(self, scope, receive, send) -> Any:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
@@ -269,7 +270,7 @@ class GuardrailsMiddleware:
         # 构造新的 receive 函数，将已消费的 body 重新注入
         body_sent = False
 
-        async def receive_wrapper():
+        async def receive_wrapper() -> Any:
             nonlocal body_sent
             if not body_sent:
                 body_sent = True
@@ -284,7 +285,7 @@ class GuardrailsMiddleware:
 
         response_body_chunks = []
 
-        async def send_wrapper(message):
+        async def send_wrapper(message) -> None:
             if message["type"] == "http.response.body":
                 chunk = message.get("body", b"")
                 if chunk:

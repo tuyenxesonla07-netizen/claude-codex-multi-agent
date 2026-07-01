@@ -42,7 +42,7 @@ _discovered_plugins: dict = {}
 _plugins_loaded: bool = False
 
 
-def _ensure_plugins_loaded():
+def _ensure_plugins_loaded() -> None:
     """Load discovered plugins once. Swallows exceptions for robustness."""
     global _discovered_plugins, _plugins_loaded
     if _plugins_loaded:

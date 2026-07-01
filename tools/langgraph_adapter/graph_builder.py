@@ -9,7 +9,7 @@ Lazy import langgraph：未安装时给出友好提示。
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, Iterator
 
 from tools.langgraph_adapter.node_builder import build_node_fn
 from tools.langgraph_adapter.state import LangGraphState, initial_state
@@ -173,7 +173,7 @@ class LangGraphBackend:
         graph: Any,
         initial: dict[str, Any] | None = None,
         config: dict[str, Any] | None = None,
-    ):
+    ) -> Iterator:
         """
         流式执行，产生事件（用于 GUI 实时更新）。
 

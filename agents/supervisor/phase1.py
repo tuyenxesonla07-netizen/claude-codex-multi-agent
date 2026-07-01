@@ -70,10 +70,10 @@ def run_phase1(
         from agents.supervisor.agent_executor import ExecutionBackend as _EB
 
         class _DefaultBackend(_EB):
-            def __init__(self, provider):
+            def __init__(self, provider) -> None:
                 self._provider = provider
 
-            def execute_task(self, task):
+            def execute_task(self, task) -> Any:
                 from agents.supervisor.agent_executor import TaskResult
                 code = ClaudeCodeExecutor(self._provider).generate_code(
                     spec=task.spec, module_name=task.module_name
@@ -84,7 +84,7 @@ def run_phase1(
                     code=code,
                 )
 
-            def get_name(self):
+            def get_name(self) -> str:
                 return "default"
 
         backend = _DefaultBackend(llm_provider=llm_provider)

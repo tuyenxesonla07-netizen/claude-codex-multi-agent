@@ -134,16 +134,16 @@ def _build_fastapi_app(
 
     # ---- 依赖注入 ----
 
-    def _get_pipeline():
+    def _get_pipeline() -> Any:
         return pipeline
 
-    def _get_observer():
+    def _get_observer() -> Any:
         return observer
 
     # ---- REST Endpoints ----
 
     @app.get("/api/v1/health")
-    async def health_check():
+    async def health_check() -> Any:
         """健康检查。"""
         obs = _get_observer()
         if obs:
@@ -153,7 +153,7 @@ def _build_fastapi_app(
         return {"status": "ok", "timestamp": time.time()}
 
     @app.get("/api/v1/metrics")
-    async def get_metrics():
+    async def get_metrics() -> Any:
         """获取指标。"""
         obs = _get_observer()
         if obs:
@@ -161,7 +161,7 @@ def _build_fastapi_app(
         return {"error": "metrics not enabled"}
 
     @app.post("/api/v1/ingest")
-    async def ingest(request: dict[str, Any]):
+    async def ingest(request: dict[str, Any]) -> dict:
         """摄入文档。"""
         start = time.time()
 
@@ -206,7 +206,7 @@ def _build_fastapi_app(
         }
 
     @app.post("/api/v1/query")
-    async def query(request: dict[str, Any]):
+    async def query(request: dict[str, Any]) -> Any:
         """搜索引擎模式查询。"""
         start = time.time()
 
@@ -268,7 +268,7 @@ def _build_fastapi_app(
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.post("/api/v1/query/cognitive")
-    async def query_cognitive(request: dict[str, Any]):
+    async def query_cognitive(request: dict[str, Any]) -> Any:
         """认知引擎模式查询。"""
         start = time.time()
 
@@ -342,7 +342,7 @@ def _build_fastapi_app(
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/api/v1/documents")
-    async def list_documents():
+    async def list_documents() -> dict:
         """列出所有文档 (摘要)。"""
         docs = []
         for doc in pipeline._documents:
@@ -356,7 +356,7 @@ def _build_fastapi_app(
         return {"documents": docs, "total": len(docs)}
 
     @app.get("/api/v1/documents/{doc_id}")
-    async def get_document(doc_id: str):
+    async def get_document(doc_id: str) -> dict:
         """获取单个文档。"""
         for doc in pipeline._documents:
             if doc.doc_id == doc_id:
@@ -372,7 +372,7 @@ def _build_fastapi_app(
         raise HTTPException(status_code=404, detail="Document not found")
 
     @app.delete("/api/v1/documents/{doc_id}")
-    async def delete_document(doc_id: str):
+    async def delete_document(doc_id: str) -> dict:
         """删除单个文档。"""
         before = len(pipeline._documents)
         pipeline._documents = [
@@ -386,7 +386,7 @@ def _build_fastapi_app(
     # ---- WebSocket ----
 
     @app.websocket("/ws/v1/query")
-    async def websocket_query(websocket: WebSocket):
+    async def websocket_query(websocket: WebSocket) -> None:
         """WebSocket 流式查询。
 
         请求格式 (JSON):
@@ -452,7 +452,7 @@ def _build_fastapi_app(
 
     # OpenAPI 文档
     @app.get("/docs", include_in_schema=False)
-    async def custom_swagger_ui_html():
+    async def custom_swagger_ui_html() -> Any:
         """Swagger UI。"""
         from fastapi.openapi.docs import get_swagger_ui_html
 
@@ -487,14 +487,14 @@ def create_rag_router(
 
     router = APIRouter(prefix="/api/v1/rag", tags=["rag"])
 
-    def _get_pipeline():
+    def _get_pipeline() -> Any:
         return pipeline
 
-    def _get_observer():
+    def _get_observer() -> Any:
         return observer
 
     @router.get("/health")
-    async def rag_health():
+    async def rag_health() -> Any:
         """健康检查。"""
         obs = _get_observer()
         if obs:
@@ -504,7 +504,7 @@ def create_rag_router(
         return {"status": "ok", "timestamp": time.time()}
 
     @router.get("/metrics")
-    async def rag_metrics():
+    async def rag_metrics() -> Any:
         """获取指标。"""
         obs = _get_observer()
         if obs:
@@ -512,7 +512,7 @@ def create_rag_router(
         return {"error": "metrics not enabled"}
 
     @router.post("/ingest")
-    async def rag_ingest(request: dict[str, Any]):
+    async def rag_ingest(request: dict[str, Any]) -> dict:
         """摄入文档。"""
         start = time.time()
         try:
@@ -555,7 +555,7 @@ def create_rag_router(
         }
 
     @router.post("/query")
-    async def rag_query(request: dict[str, Any]):
+    async def rag_query(request: dict[str, Any]) -> Any:
         """搜索引擎模式查询。"""
         start = time.time()
         try:
@@ -614,7 +614,7 @@ def create_rag_router(
             raise HTTPException(status_code=500, detail=str(e))
 
     @router.post("/query/cognitive")
-    async def rag_query_cognitive(request: dict[str, Any]):
+    async def rag_query_cognitive(request: dict[str, Any]) -> Any:
         """认知引擎模式查询。"""
         start = time.time()
         try:
@@ -685,7 +685,7 @@ def create_rag_router(
             raise HTTPException(status_code=500, detail=str(e))
 
     @router.get("/documents")
-    async def rag_list_documents():
+    async def rag_list_documents() -> dict:
         """列出所有文档 (摘要)。"""
         docs = []
         for doc in pipeline._documents:
@@ -699,7 +699,7 @@ def create_rag_router(
         return {"documents": docs, "total": len(docs)}
 
     @router.get("/documents/{doc_id}")
-    async def rag_get_document(doc_id: str):
+    async def rag_get_document(doc_id: str) -> dict:
         """获取单个文档。"""
         for doc in pipeline._documents:
             if doc.doc_id == doc_id:
@@ -715,7 +715,7 @@ def create_rag_router(
         raise HTTPException(status_code=404, detail="Document not found")
 
     @router.delete("/documents/{doc_id}")
-    async def rag_delete_document(doc_id: str):
+    async def rag_delete_document(doc_id: str) -> dict:
         """删除单个文档。"""
         before = len(pipeline._documents)
         pipeline._documents = [
@@ -729,7 +729,7 @@ def create_rag_router(
     # ---- WebSocket ----
 
     @router.websocket("/ws/query")
-    async def rag_websocket_query(websocket: WebSocket):
+    async def rag_websocket_query(websocket: WebSocket) -> None:
         """WebSocket 流式查询。"""
         await websocket.accept()
         try:
@@ -797,7 +797,7 @@ def _build_flask_app(
     app = Flask(__name__)
 
     @app.route("/api/v1/health", methods=["GET"])
-    def health_check():
+    def health_check() -> Any:
         obs = observer
         if obs:
             return jsonify(obs.health_check(
@@ -806,7 +806,7 @@ def _build_flask_app(
         return jsonify({"status": "ok"})
 
     @app.route("/api/v1/query", methods=["POST"])
-    def query():
+    def query() -> Any:
         start = time.time()
         data = request.get_json()
         if not data:
@@ -850,7 +850,7 @@ def _build_flask_app(
             return jsonify({"error": str(e)}), 500
 
     @app.route("/api/v1/ingest", methods=["POST"])
-    def ingest():
+    def ingest() -> Any:
         data = request.get_json()
         if not data:
             return jsonify({"error": "No JSON data"}), 400

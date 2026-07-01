@@ -95,7 +95,7 @@ def _generate_code_inline(
             "Output ONLY raw Python code -- no markdown, no explanation, no code fences."
         )
 
-        def _call_llm(prompt_text: str, sys_prompt_text: str):
+        def _call_llm(prompt_text: str, sys_prompt_text: str) -> Any:
             return llm_provider.complete(
                 prompt=prompt_text,
                 system_prompt=sys_prompt_text,

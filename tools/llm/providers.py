@@ -111,7 +111,7 @@ class OpenAICompatibleProvider(LLMProvider):
         backend: str = "openai",
         max_tokens: int = 4096,
         timeout: float = None,
-    ):
+    ) -> None:
         # Resolve API key
         api_key = api_key or os.environ.get("OPENAI_API_KEY")
         if not api_key:
@@ -280,7 +280,7 @@ class GeminiProvider(LLMProvider):
         model: str = None,
         max_tokens: int = 4096,
         timeout: float = None,
-    ):
+    ) -> None:
         # Resolve API key
         api_key = api_key or os.environ.get("GEMINI_API_KEY")
         if not api_key:

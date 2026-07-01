@@ -50,7 +50,7 @@ class CodexSupervisor:
     Here we define the supervisor's interface contract and decision logic.
     """
 
-    def __init__(self, agents_config: dict):
+    def __init__(self, agents_config: dict) -> None:
         self.agents_config = agents_config
         self.modules = self._load_module_registry()
 
@@ -176,6 +176,6 @@ class CodexSupervisor:
         """Get the conflict report from the last code generation run."""
         return getattr(self, '_last_conflict_report', None)
 
-    def get_last_computer_use_report(self):
+    def get_last_computer_use_report(self) -> Any:
         """Get the computer use report from the last code generation run."""
         return getattr(self, '_last_computer_use_report', None)

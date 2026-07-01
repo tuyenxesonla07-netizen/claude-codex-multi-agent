@@ -252,7 +252,7 @@ class PipelineCompiler:
         spec_store=None,
         message_bus=None,
         global_constraints: Optional[Dict] = None,
-    ):
+    ) -> None:
         self.context_deriver = ContextDeriver()
         self.prompt_generator = PromptTemplateGenerator(global_constraints)
         self.fix_deriver = FixInstructionDeriver()

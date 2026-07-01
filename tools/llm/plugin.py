@@ -20,7 +20,7 @@ import importlib
 import importlib.metadata
 import logging
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Any, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ class PluginMetadata:
 class PluginLoader:
     """Discover and load LLM provider plugins via entry_points."""
 
-    def __init__(self, group: str = ENTRY_POINT_GROUP):
+    def __init__(self, group: str = ENTRY_POINT_GROUP) -> None:
         self._group = group
         self._cache: Optional[dict] = None
 
@@ -76,7 +76,7 @@ class PluginLoader:
         self._cache = plugins
         return plugins
 
-    def load(self, name: str, **kwargs):
+    def load(self, name: str, **kwargs) -> Any:
         """Load a provider instance by plugin name.
 
         Looks up the dotted provider_class path, imports the module,
@@ -115,7 +115,7 @@ class PluginLoader:
         """List metadata for all discovered plugins."""
         return list(self.discover().values())
 
-    def clear_cache(self):
+    def clear_cache(self) -> None:
         """Clear the discovery cache (useful for testing)."""
         self._cache = None
 

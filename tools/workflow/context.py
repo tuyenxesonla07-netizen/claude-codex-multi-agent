@@ -46,7 +46,7 @@ class ContextWindow:
     支持优先级淘汰、角色过滤、token 预算控制。
     """
 
-    def __init__(self, max_items: int = 50, max_tokens: int = 8000):
+    def __init__(self, max_items: int = 50, max_tokens: int = 8000) -> None:
         self._items: List[ContextItem] = []
         self.max_items = max_items
         self.max_tokens = max_tokens
@@ -137,7 +137,7 @@ class LifecycleHooks:
 
     HOOKS = ["on_start", "on_step", "on_complete", "on_error"]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._handlers: Dict[str, List[LifecycleHandler]] = {
             hook: [] for hook in self.HOOKS
         }
@@ -148,7 +148,7 @@ class LifecycleHooks:
             raise ValueError(f"Unknown hook: {hook}. Valid: {list(self._handlers)}")
         self._handlers[hook].append(handler)
 
-    def on(self, hook: str):
+    def on(self, hook: str) -> Any:
         """装饰器语法注册钩子: @hooks.on('on_step')"""
         def decorator(fn: LifecycleHandler) -> LifecycleHandler:
             self.register(hook, fn)

@@ -68,7 +68,7 @@ def can_transition(from_status: ApprovalStatus, to_status: ApprovalStatus) -> bo
 class InvalidTransitionError(Exception):
     """非法状态转换异常。"""
 
-    def __init__(self, from_status: ApprovalStatus, to_status: ApprovalStatus):
+    def __init__(self, from_status: ApprovalStatus, to_status: ApprovalStatus) -> None:
         self.from_status = from_status
         self.to_status = to_status
         super().__init__(

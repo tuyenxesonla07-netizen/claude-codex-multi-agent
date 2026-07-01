@@ -72,7 +72,7 @@ class AutoApprovalHandler(ApprovalHandler):
         # result.approved = False (high risk requires human)
     """
 
-    def __init__(self, auto_under_risk: str = "low"):
+    def __init__(self, auto_under_risk: str = "low") -> None:
         """
         Args:
             auto_under_risk: 低于等于此等级的风险自动放行
@@ -117,7 +117,7 @@ class ManualApprovalHandler(ApprovalHandler):
         # 审批台回调: handler.callback(result_id, True, "approved")
     """
 
-    def __init__(self, callback_url: str = None):
+    def __init__(self, callback_url: str = None) -> None:
         self.callback_url = callback_url
         self._pending: dict[str, ApprovalRequest] = {}
 
@@ -173,7 +173,7 @@ def get_approval_handler(mode: str = "auto", **kwargs) -> ApprovalHandler:
 
 # ── EnterpriseApprovalHandler ──────────────────────────────────────────────
 
-from typing import Optional as _Optional
+from typing import Any, Optional as _Optional
 
 from tools.hitl.approval_state import ApprovalStateMachine, ApprovalStatus, InvalidTransitionError
 from tools.hitl.approval_chain import ApprovalChain, RoleRegistry
@@ -540,7 +540,7 @@ class EnterpriseApprovalHandler(ApprovalHandler):
         if timer is not None:
             timer.cancel()
 
-    def _make_timeout_handler(self, approval_id: str, chain: ApprovalChain):
+    def _make_timeout_handler(self, approval_id: str, chain: ApprovalChain) -> Any:
         """创建 SLA 超时处理器闭包。"""
         async def handler(_approval_id: str, level: int) -> None:
             record = self._records.get(approval_id)

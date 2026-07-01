@@ -549,7 +549,7 @@ class LLMPolicy:
         self._log_prob_sum = 0.0
         self._update_count = 0
 
-    def _get_provider(self):
+    def _get_provider(self) -> Any:
         """Lazy-initialize the LLM provider."""
         if self._provider is None:
             from tools.llm import create_llm_provider

@@ -53,7 +53,7 @@ class WebhookAlerter:
         webhook_url: Optional[str] = None,
         min_level: AlertLevel = AlertLevel.WARNING,
         timeout: float = 10.0,
-    ):
+    ) -> None:
         self.webhook_url = webhook_url or os.environ.get("CC_WEBHOOK_URL", "")
         self.min_level = min_level
         self.timeout = timeout

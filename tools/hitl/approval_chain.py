@@ -14,7 +14,7 @@ from __future__ import annotations
 import dataclasses
 from dataclasses import dataclass, field
 from datetime import timedelta
-from typing import Optional
+from typing import Iterator, Optional
 
 
 @dataclass(frozen=True)
@@ -102,7 +102,7 @@ class ApprovalChain:
     def __len__(self) -> int:
         return len(self.levels)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator:
         return iter(self.levels)
 
 

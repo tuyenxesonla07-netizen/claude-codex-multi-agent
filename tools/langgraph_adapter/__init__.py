@@ -30,7 +30,7 @@ try:
 except ImportError:
     # langgraph 未安装时，提供友好的错误提示
     class LangGraphBackend:  # type: ignore[no-redef]
-        def __init__(self, *args, **kwargs):
+        def __init__(self, *args, **kwargs) -> None:
             raise ImportError(
                 "langgraph is required for LangGraphBackend. "
                 "Install with: pip install langgraph"

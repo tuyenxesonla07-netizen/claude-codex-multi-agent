@@ -81,7 +81,7 @@ class ExpertAgent:
         review_capabilities: List[str] = None,
         version: str = "1.0.0",
         skill_manager=None,
-    ):
+    ) -> None:
         self.agent_id = agent_id
         self.module_name = module_name
         self.input_schema = input_schema

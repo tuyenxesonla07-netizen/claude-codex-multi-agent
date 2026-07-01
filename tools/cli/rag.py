@@ -4,9 +4,10 @@
 from __future__ import annotations
 
 import argparse
+from typing import Any
 
 
-def _make_pipeline():
+def _make_pipeline() -> Any:
     from tools.rag import RAGPipeline, RAGConfig, Document
     config = RAGConfig()
     pipeline = RAGPipeline(config)
