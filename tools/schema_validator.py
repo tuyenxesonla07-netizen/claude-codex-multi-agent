@@ -15,7 +15,6 @@ import os
 from dataclasses import dataclass, field
 from typing import List
 
-
 @dataclass
 class ValidationIssue:
     severity: str  # "error" | "warning" | "info"
@@ -28,7 +27,6 @@ class ValidationIssue:
         loc = f" [{self.file}]" if self.file else ""
         detail = f"\n   └─ {self.detail}" if self.detail else ""
         return f"{prefix} {self.message}{loc}{detail}"
-
 
 @dataclass
 class ValidationReport:
@@ -61,7 +59,6 @@ class ValidationReport:
         for issue in self.issues:
             lines.append(str(issue))
         return "\n".join(lines)
-
 
 def validate_json_schemas(schemas_dir: str = "config/schemas") -> ValidationReport:
     """验证所有 JSON Schema 文件格式合法，支持 $ref / allOf / x-extends 继承。"""
@@ -125,7 +122,6 @@ def validate_json_schemas(schemas_dir: str = "config/schemas") -> ValidationRepo
                 report.add("error", "Output schema missing 'module_spec' property", filename)
 
     return report
-
 
 def validate_agents_schemas_consistency(
     agents_path: str = "config/agents.yaml",
@@ -222,18 +218,12 @@ def validate_agents_schemas_consistency(
 
     return report
 
-
 def validate_dependency_references(
     agents_path: str = "config/agents.yaml",
     schemas_dir: str = "config/schemas",
 ) -> ValidationReport:
     """验证依赖关系引用完整性。"""
     report = ValidationReport()
-
-    try:
-        import yaml
-    except ImportError:
-        return report
 
     if not os.path.isdir(schemas_dir):
         return report
@@ -275,7 +265,6 @@ def validate_dependency_references(
                 )
 
     return report
-
 
 def validate_all(config_dir: str = "config") -> ValidationReport:
     """运行所有验证，返回完整报告。"""

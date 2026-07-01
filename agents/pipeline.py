@@ -64,7 +64,7 @@ class KodeForge:
         from tools.observability import Tracer, PipelineMetrics
         from tools.plugins import PluginSkillRegistry
         from tools.workflow import WorkflowEngine
-        from agents.supervisor.agent_executor import write_code_artifacts, CodeWriterConfig
+        from agents.supervisor.agent_executor import CodeWriterConfig
         from agents.experts import create_expert_agents
 
         # ── Core stores ──
@@ -153,7 +153,7 @@ class KodeForge:
         self.skill_manager.load()
 
         # ── Agents ──
-        from agents.supervisor import CodexSupervisor, Requirement
+        from agents.supervisor import CodexSupervisor
 
         self.agents_config = self._load_agents_config(config_dir)
         self.supervisor = CodexSupervisor(self.agents_config)

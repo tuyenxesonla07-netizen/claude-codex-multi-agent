@@ -17,14 +17,13 @@ from __future__ import annotations
 
 import importlib
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
 from tools.plugins.manifest import ToolManifest, load_manifest, ManifestError
 
 logger = logging.getLogger(__name__)
-
 
 # ---------------------------------------------------------------------------
 # Plugin Tool Entry
@@ -36,7 +35,6 @@ class PluginToolEntry:
     manifest: ToolManifest
     handler: Callable[..., Any] | None = None
     load_error: str = ""
-
 
 # ---------------------------------------------------------------------------
 # Tool Registry

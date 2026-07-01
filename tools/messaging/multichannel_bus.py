@@ -31,7 +31,7 @@ import logging
 from typing import Any, Callable
 
 from tools.messaging.channel import ChannelAdapter, MessageEnvelope, ChannelRegistry
-from tools.workflow.messaging import MessageBus, Message
+from tools.workflow.messaging import MessageBus
 
 logger = logging.getLogger(__name__)
 

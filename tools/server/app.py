@@ -32,12 +32,11 @@ FastAPI 服务器 — Pipeline API 入口。
 from __future__ import annotations
 
 import argparse
-import asyncio
 import json
 import logging
 import time
 from dataclasses import dataclass, field
-from typing import Any, Iterator, List, Optional
+from typing import Any, Iterator
 
 logger = logging.getLogger(__name__)
 
@@ -45,15 +44,7 @@ logger = logging.getLogger(__name__)
 # Re-exports for backward compatibility (old code imports these from app.py)
 # ---------------------------------------------------------------------------
 
-from tools.server.auth import hash_api_key, verify_api_key, APIKeyValidator
-from tools.server.middleware import (
-    SecurityHeadersMiddleware,
-    RequestSizeLimitMiddleware,
-    sanitize_error,
-    sanitize_log_message,
-    SENSITIVE_PATTERNS,
-)
-
+from tools.server.middleware import SecurityHeadersMiddleware, RequestSizeLimitMiddleware, sanitize_error
 
 # ---------------------------------------------------------------------------
 # ServerConfig
@@ -123,7 +114,6 @@ class ServerConfig:
             log_level=os.getenv("CC_LOG_LEVEL", "INFO"),
         )
 
-
 # ---------------------------------------------------------------------------
 # create_app + main
 # ---------------------------------------------------------------------------
@@ -156,12 +146,9 @@ def create_app(
             "Install with: pip install fastapi uvicorn"
         )
 
-    from tools.server.orchestrator import PipelineOrchestrator, PipelineEvent
+    from tools.server.orchestrator import PipelineOrchestrator
     from tools.server.auth import AuthMiddleware
-    from tools.server.middleware import (
-        CorrelationIdMiddleware,
-        GuardrailsMiddleware,
-    )
+    from tools.server.middleware import CorrelationIdMiddleware, GuardrailsMiddleware
 
     if config is None:
         config = ServerConfig()
@@ -410,7 +397,6 @@ def create_app(
     @app.get("/api/v1/components")
     async def list_components() -> dict:
         """列出所有已加载的组件及其状态"""
-        from tools.workflow.engine import WorkflowEngine
 
         engine = orchestrator.engine
         workflows = [
@@ -528,7 +514,6 @@ def create_app(
 
     return app
 
-
 def main() -> None:
     """CLI 入口: python -m tools.server.app --port 8080"""
     import uvicorn
@@ -557,7 +542,6 @@ def main() -> None:
         port=args.port,
         log_level="debug" if args.debug else "info",
     )
-
 
 if __name__ == "__main__":
     main()

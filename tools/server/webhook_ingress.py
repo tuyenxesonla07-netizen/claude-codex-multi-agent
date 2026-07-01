@@ -16,10 +16,9 @@ Webhook 入口路由 — FastAPI 路由工厂。
 from __future__ import annotations
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
-
 
 def create_webhook_router(
     multichannel_bus: Any = None,
@@ -36,7 +35,7 @@ def create_webhook_router(
         FastAPI Router 实例
     """
     try:
-        from fastapi import APIRouter, Request, HTTPException, status
+        from fastapi import APIRouter, Request
     except ImportError:
         logger.error("FastAPI not installed. Cannot create webhook router.")
         return None
@@ -76,7 +75,6 @@ def create_webhook_router(
         return {"status": "ok", "endpoints": [f"{path_prefix}/{{channel_name}}"]}
 
     return router
-
 
 async def handle_webhook(
     channel_name: str,

@@ -21,13 +21,11 @@ from typing import Any, Callable, List, Optional
 
 logger = logging.getLogger(__name__)
 
-
 # ---------------------------------------------------------------------------
 # RecoveryManager + RetryPolicy + RecoveryResult
 # ---------------------------------------------------------------------------
 
 from dataclasses import dataclass, field
-
 
 @dataclass
 class RetryPolicy:
@@ -54,7 +52,6 @@ class RetryPolicy:
         """判断异常是否可重试"""
         return isinstance(exception, self.retryable_exceptions)
 
-
 @dataclass
 class RecoveryResult:
     """恢复操作结果"""
@@ -64,7 +61,6 @@ class RecoveryResult:
     attempts: int = 0
     total_delay: float = 0.0
     final_error: str = ""
-
 
 class RecoveryManager:
     """
@@ -180,7 +176,6 @@ class RecoveryManager:
                     time.sleep(delay * (2 ** attempt))
         raise last_error
 
-
 # ---------------------------------------------------------------------------
 # QualityLoop + QualityLoopResult
 # ---------------------------------------------------------------------------
@@ -193,7 +188,6 @@ class QualityLoopResult:
     iterations: int                  # 实际迭代次数
     converged: bool                  # 是否收敛
     history: List[dict]              # 每轮的历史记录
-
 
 class QualityLoop:
     """
@@ -232,7 +226,7 @@ class QualityLoop:
         context: dict = None,
     ) -> QualityLoopResult:
         """执行节点 → 评估 → 修复循环"""
-        from tools.quality.quality_evaluator import ReviewResult, QualityReport
+        from tools.quality.quality_evaluator import QualityReport
 
         context = context or {}
         history: List[dict] = []
@@ -431,7 +425,6 @@ The following issues were detected in the generated code. Please fix ALL of them
 
         return await llm_node.execute(inputs)
 
-
 # ---------------------------------------------------------------------------
 # ResultAggregator + AgentResult
 # ---------------------------------------------------------------------------
@@ -448,7 +441,6 @@ class AgentResult:
     status: str = "success"       # success | partial | failed
     error: str = ""
     metadata: dict = field(default_factory=dict)
-
 
 class ResultAggregator:
     """
@@ -551,7 +543,6 @@ class ResultAggregator:
     def __len__(self) -> int:
         return len(self._results)
 
-
 # ---------------------------------------------------------------------------
 # CircuitBreaker
 # ---------------------------------------------------------------------------
@@ -561,11 +552,9 @@ class CircuitState(str, Enum):
     OPEN = "open"
     HALF_OPEN = "half_open"
 
-
 class CircuitBreakerOpenError(Exception):
     """Circuit breaker 断路异常"""
     pass
-
 
 class CircuitBreaker:
     """

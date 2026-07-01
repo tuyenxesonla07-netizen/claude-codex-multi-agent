@@ -24,7 +24,6 @@ import logging
 import os
 import re
 import time
-from typing import Optional
 
 from tools.llm.base import LLMProvider, LLMResponse
 
@@ -50,7 +49,6 @@ _OPENAI_COMPATIBLE_DEFAULTS = {
 
 _GEMINI_DEFAULT_MODEL = "gemini-2.0-flash"
 
-
 def _clean_json(text: str) -> str:
     """Strip markdown fences and whitespace from JSON text."""
     text = text.strip()
@@ -58,7 +56,6 @@ def _clean_json(text: str) -> str:
         text = re.sub(r"^```(?:json)?\s*\n?", "", text)
         text = re.sub(r"\n?```\s*$", "", text)
     return text
-
 
 def _should_retry(exception: Exception) -> bool:
     """Check if an exception is retryable."""
@@ -69,7 +66,6 @@ def _should_retry(exception: Exception) -> bool:
     if hasattr(exception, "status_code") and exception.status_code in _RETRYABLE_STATUS_CODES:
         return True
     return False
-
 
 # ---------------------------------------------------------------------------
 # OpenAI-compatible provider
@@ -257,7 +253,6 @@ class OpenAICompatibleProvider(LLMProvider):
         return await asyncio.to_thread(
             self.complete, prompt, system_prompt, output_format, max_tokens, temperature
         )
-
 
 # ---------------------------------------------------------------------------
 # Google Gemini provider

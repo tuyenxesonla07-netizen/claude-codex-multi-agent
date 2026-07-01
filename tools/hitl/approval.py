@@ -25,7 +25,6 @@ logger = logging.getLogger(__name__)
 # 风险等级定义
 RISK_LEVELS = ["low", "medium", "high"]
 
-
 @dataclass
 class ApprovalResult:
     """审批结果"""
@@ -35,7 +34,6 @@ class ApprovalResult:
     requires_human: bool = False
     approval_id: str = ""
 
-
 @dataclass
 class ApprovalRequest:
     """审批请求"""
@@ -43,7 +41,6 @@ class ApprovalRequest:
     args: dict
     risk_level: str
     context: dict
-
 
 class ApprovalHandler(ABC):
     """审批处理器抽象接口"""
@@ -57,7 +54,6 @@ class ApprovalHandler(ABC):
     def callback(self, approval_id: str, approved: bool, comment: str = "") -> None:
         """审批回调（生产模式：审批台异步回调）"""
         ...
-
 
 class AutoApprovalHandler(ApprovalHandler):
     """
@@ -101,7 +97,6 @@ class AutoApprovalHandler(ApprovalHandler):
 
     def callback(self, approval_id: str, approved: bool, comment: str = "") -> None:
         logger.info("[AutoApproval] callback %s: %s", approval_id, approved)
-
 
 class ManualApprovalHandler(ApprovalHandler):
     """
@@ -154,7 +149,6 @@ class ManualApprovalHandler(ApprovalHandler):
             for k, v in self._pending.items()
         ]
 
-
 # 便捷函数
 def get_approval_handler(mode: str = "auto", **kwargs) -> ApprovalHandler:
     """
@@ -170,16 +164,14 @@ def get_approval_handler(mode: str = "auto", **kwargs) -> ApprovalHandler:
         return ManualApprovalHandler(**kwargs)
     return AutoApprovalHandler(**kwargs)
 
-
 # ── EnterpriseApprovalHandler ──────────────────────────────────────────────
 
 from typing import Any, Optional as _Optional
 
-from tools.hitl.approval_state import ApprovalStateMachine, ApprovalStatus, InvalidTransitionError
+from tools.hitl.approval_state import ApprovalStateMachine, InvalidTransitionError
 from tools.hitl.approval_chain import ApprovalChain, RoleRegistry
 from tools.hitl.audit_chain import HashChainedAuditLog
 from tools.hitl.escalation import SLATimer, EscalationPolicy, EscalationState
-
 
 @dataclass
 class ApprovalRecord:
@@ -189,7 +181,6 @@ class ApprovalRecord:
     state_machine: ApprovalStateMachine
     escalation_state: EscalationState
     result: _Optional[ApprovalResult] = None
-
 
 class EnterpriseApprovalHandler(ApprovalHandler):
     """

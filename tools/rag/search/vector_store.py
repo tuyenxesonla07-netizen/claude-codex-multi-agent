@@ -43,13 +43,11 @@ from tools.rag.rag_types import Document
 
 logger = logging.getLogger(__name__)
 
-
 # ---------------------------------------------------------------------------
 # 向量存储后端类型
 # ---------------------------------------------------------------------------
 
 VectorStoreBackend = Any  # MilvusCollection | ChromaCollection | InMemoryStore
-
 
 # ---------------------------------------------------------------------------
 # 搜索结果
@@ -63,7 +61,6 @@ class VectorSearchResult:
     score: float
     document: Document | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
-
 
 # ---------------------------------------------------------------------------
 # 内存向量存储 (始终可用)
@@ -196,7 +193,6 @@ class InMemoryVectorStore:
         self._embeddings = None
         self._doc_ids = []
         self._documents = {}
-
 
 # ---------------------------------------------------------------------------
 # Milvus 向量存储
@@ -403,7 +399,6 @@ class MilvusVectorStore:
         coll = self._get_collection()
         coll.drop()
 
-
 # ---------------------------------------------------------------------------
 # Chroma 向量存储
 # ---------------------------------------------------------------------------
@@ -551,7 +546,6 @@ class ChromaVectorStore:
         coll = self._get_collection()
         coll.delete(where={"id": {"$ne": "__empty__"}})
 
-
 # ---------------------------------------------------------------------------
 # 统一向量存储入口 (自动选择后端)
 # ---------------------------------------------------------------------------
@@ -610,7 +604,6 @@ class VectorStore:
 
         # 检查 Chroma
         try:
-            import chromadb  # noqa: F401
 
             return "chroma"
         except ImportError:

@@ -36,13 +36,11 @@ from tools.exceptions import (
 
 logger = logging.getLogger(__name__)
 
-
 # ---------------------------------------------------------------------------
 # ContextWindow + ContextItem  (moved to tools/workflow/context.py)
 # ---------------------------------------------------------------------------
 
 from tools.workflow.context import ContextWindow, LifecycleHooks
-
 
 # ---------------------------------------------------------------------------
 # WorkflowEngine and related dataclasses
@@ -51,13 +49,7 @@ from tools.workflow.context import ContextWindow, LifecycleHooks
 from tools.workflow.nodes import (
     WorkflowNode, NodeType, LLMNode, RAGNode, ToolNode, CodeNode, BranchNode, HumanNode,
 )
-from tools.workflow.execution import (
-    RecoveryManager, RetryPolicy,
-    QualityLoop,
-    AgentResult, ResultAggregator,
-    CircuitBreaker, CircuitState, CircuitBreakerOpenError,
-)
-
+from tools.workflow.execution import RecoveryManager, QualityLoop
 
 @dataclass
 class Workflow:
@@ -68,7 +60,6 @@ class Workflow:
     edges: Dict[str, List[str]]          # node_id → [下游 node_id]
     metadata: Dict[str, Any] = field(default_factory=dict)
 
-
 @dataclass
 class ExecutionLog:
     """单条执行日志"""
@@ -77,7 +68,6 @@ class ExecutionLog:
     output: Any
     duration_ms: int
     timestamp: str
-
 
 @dataclass
 class WorkflowResult:
@@ -90,7 +80,6 @@ class WorkflowResult:
     started_at: str = ""
     finished_at: str = ""
 
-
 @dataclass
 class SubTask:
     """子任务定义 — 支持 fan-out 到多个并行 worker"""
@@ -101,7 +90,6 @@ class SubTask:
     output: Any = None
     error: str = ""
     retries: int = 0
-
 
 class WorkflowEngine:
     """工作流执行引擎"""

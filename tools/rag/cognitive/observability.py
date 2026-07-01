@@ -35,12 +35,11 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Iterator, Sequence
+from typing import Any, Iterator
 
 import numpy as np
 
 logger = logging.getLogger(__name__)
-
 
 # ---------------------------------------------------------------------------
 # 结构化日志
@@ -140,7 +139,6 @@ class StructuredLogger:
         """记录缓存命中。"""
         self.log_event("cache", query=query[:100], hit=hit)
 
-
 # ---------------------------------------------------------------------------
 # 指标收集
 # ---------------------------------------------------------------------------
@@ -155,7 +153,6 @@ class QueryMetric:
     intent: str = ""
     cache_hit: bool = False
     error: str | None = None
-
 
 class RAGMetrics:
     """RAG 系统指标收集器。
@@ -257,7 +254,6 @@ class RAGMetrics:
         self._backend_usage.clear()
         self._intent_usage.clear()
 
-
 # ---------------------------------------------------------------------------
 # 请求追踪 (链路追踪)
 # ---------------------------------------------------------------------------
@@ -285,7 +281,6 @@ class TraceSpan:
             "metadata": self.metadata,
             "children": [c.to_dict() for c in self.children],
         }
-
 
 class RAGObserver:
     """RAG 系统可观测性入口。

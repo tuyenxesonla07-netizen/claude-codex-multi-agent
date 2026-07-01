@@ -33,11 +33,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import numpy as np
-
-
 logger = logging.getLogger(__name__)
-
 
 # ---------------------------------------------------------------------------
 # Memory item
@@ -82,7 +78,6 @@ class MemoryItem:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> MemoryItem:
         return cls(**{k: v for k, v in data.items() if k in cls.__dataclass_fields__})
-
 
 # ---------------------------------------------------------------------------
 # Memory Manager
@@ -443,7 +438,6 @@ class MemoryManager:
         with open(self.persist_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
-
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
@@ -453,16 +447,13 @@ def _tokenize(text: str) -> list[str]:
     from tools.rag.tokenizer import tokenize
     return tokenize(text)
 
-
 def _split_sentences(text: str) -> list[str]:
     """Split text into sentences."""
     import re
     return [s.strip() for s in re.split(r"[.!?。！？\n]+", text) if s.strip()]
 
-
 def _extract_keywords(text: str, top_n: int = 8) -> list[str]:
     """Extract keywords from text."""
-    import re
     tokens = _tokenize(text)
     stopwords = {
         "the", "a", "an", "is", "are", "was", "were", "be", "been",
@@ -475,7 +466,6 @@ def _extract_keywords(text: str, top_n: int = 8) -> list[str]:
     # Keep tokens with >1 char (Chinese) or >2 chars (English)
     filtered = [t for t in tokens if len(t) > 1 and t not in stopwords]
     return list(dict.fromkeys(filtered))[:top_n]
-
 
 def _estimate_importance(sentence: str) -> float:
     """Estimate how important a sentence is for memorization (0-1)."""

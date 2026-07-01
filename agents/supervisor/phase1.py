@@ -12,12 +12,11 @@ Phase 1 pipeline:
 
 import logging
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
-from agents.supervisor.types import Requirement, ModuleTask, CompiledPipeline
+from agents.supervisor.types import Requirement, CompiledPipeline
 
 logger = logging.getLogger(__name__)
-
 
 def run_phase1(
     supervisor,  # CodexSupervisor instance (avoids circular import)
@@ -49,11 +48,7 @@ def run_phase1(
             "approved": bool,
         }
     """
-    from agents.supervisor.agent_executor import (
-        ClaudeCodeExecutor,
-        ExecutionBackend,
-        TaskSpec,
-    )
+    from agents.supervisor.agent_executor import ClaudeCodeExecutor, ExecutionBackend
 
     # Use provided backend or create default
     if backend is None:
@@ -209,7 +204,6 @@ def run_phase1(
         "approved": False,
     }
 
-
 def generate_code_for_modules(
     supervisor,
     module_specs: Dict[str, Any],
@@ -231,7 +225,6 @@ def generate_code_for_modules(
         {module_name: code_string}
     """
     return _generate_code_for_modules(supervisor, module_specs, backend, requirement, enable_conflict_resolution)
-
 
 def _generate_code_for_modules(
     supervisor,
@@ -356,7 +349,6 @@ def _generate_code_for_modules(
                 logger.warning("[ComputerUse] 验证失败: %s", computer_use_report.output)
 
     return code_artifact
-
 
 def _module_to_file_path(module_name: str) -> str:
     """Convert a module name to its target file path."""

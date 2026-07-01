@@ -27,10 +27,9 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
-
 
 @dataclass
 class MessagingConfig:
@@ -52,7 +51,6 @@ class MessagingConfig:
             "channels": self.channels,
             "routing": self.routing,
         }
-
 
 def load_messaging_config(path: str = "config/messaging.yaml") -> MessagingConfig:
     """
@@ -108,7 +106,6 @@ def load_messaging_config(path: str = "config/messaging.yaml") -> MessagingConfi
     except Exception as e:
         logger.error("[MessagingConfig] Failed to load config: %s", e)
         return MessagingConfig()
-
 
 def save_messaging_config(config: MessagingConfig, path: str = "config/messaging.yaml") -> None:
     """
