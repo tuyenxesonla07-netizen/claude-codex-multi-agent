@@ -168,7 +168,7 @@ def get_approval_handler(mode: str = "auto", **kwargs) -> ApprovalHandler:
 
 from typing import Any, Optional as _Optional
 
-from tools.hitl.approval_state import ApprovalStateMachine, InvalidTransitionError
+from tools.hitl.approval_state import ApprovalStateMachine, ApprovalStatus, InvalidTransitionError
 from tools.hitl.approval_chain import ApprovalChain, RoleRegistry
 from tools.hitl.audit_chain import HashChainedAuditLog
 from tools.hitl.escalation import SLATimer, EscalationPolicy, EscalationState

@@ -44,7 +44,14 @@ logger = logging.getLogger(__name__)
 # Re-exports for backward compatibility (old code imports these from app.py)
 # ---------------------------------------------------------------------------
 
-from tools.server.middleware import SecurityHeadersMiddleware, RequestSizeLimitMiddleware, sanitize_error
+from tools.server.auth import hash_api_key, verify_api_key, APIKeyValidator
+from tools.server.middleware import (
+    SecurityHeadersMiddleware,
+    RequestSizeLimitMiddleware,
+    sanitize_error,
+    sanitize_log_message,
+    SENSITIVE_PATTERNS,
+)
 
 # ---------------------------------------------------------------------------
 # ServerConfig
