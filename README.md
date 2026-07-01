@@ -1,327 +1,290 @@
-# 🧠 KodeForge (CC)
+# 🛡️ KodeForge
 
-> **Write JSON Schema → Get Secure, Production-Ready Code from Multi-Agent Pipeline**
+> **让企业敢用 AI 写代码，并能过 SOC 2 / HIPAA / 等保 审计**
+>
+> Schema-first 多智能体代码生成管线 × Quality Gate 收敛机制 × HITL 不可绕过审批链
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-1095%20passed-brightgreen.svg)](tests/)
+[![Docker](https://img.shields.io/badge/docker-kodeforge%2Fcompliance-blue)](https://github.com/your-org/kodeforge/pkgs/container/kodeforge)
 
-**The workflow:**
-1. 🏗️ You write JSON Schemas (module input/output contracts)
-2. 🤖 Pipeline auto-compiles schemas into parallel multi-agent tasks
-3. ✍️ Expert agents generate code with RAG context + skill injection
-4. 🔒 Security review (injection detection + AST validation + PII masking)
-5. 📊 Quality evaluation + fix loop until convergence
+---
 
-**No manual DAG wiring.** The compiler reads your schemas and derives context, order, prompts, fix rules, and quality gates automatically.
+## 为什么需要这个？
 
-## ✨ Why This Exists
+企业用 AI 写代码最大的顾虑不是「写得不够快」，而是：
 
-Most multi-agent frameworks make you wire agents by hand — `agent_a → agent_b → agent_c`. Change one agent and the DAG breaks.
+- **敢上线吗？** AI 代码质量参差不齐，没有系统收敛机制，出事背锅的是技术负责人
+- **审计能过吗？** SOC 2 审计员问"AI 写的代码谁审的"，没有完整合规记录就没法回答
+- **团队规模用 AI 后怎么管？** 每人都在用，标准不统一，质量无底线
 
-CC is **schema-first**: define the *what* (module contracts), let the compiler figure out the *how* (execution order, context injection, retry strategy). Add a module by dropping two JSON files — zero Python code.
+**KodeForge 解决这三层问题：**
 
-## 🔌 MCP Server
+1. **Quality Gate 收敛** — 代码生成后自动评分，不通过就进入有界修复循环（ConvergenceDetector 保证终止，不会无限重试）
+2. **HITL 审批链** — Critical/High issue 必须人工审批才能继续（不可绕过，不是"建议"）
+3. **不可篡改审计日志** — 每次 AI 生成、质量评估、人工审批的完整链路，6 年留痕，SOC 2 / HIPAA / 等保 直接适用
 
-CC exposes a JSON-RPC 2.0 interface over SSE — any MCP-compatible client (Claude Desktop, Cursor, CLI tools) can invoke pipeline tools directly.
+**不做"AI 编码助手"（红海），做"AI 编码的合规基础设施"——代码生成之后的质量守门员。**
+
+---
+
+## 60 秒体验（无需 LLM API Key）
 
 ```bash
-cc serve --port 8080        # REST API + WebSocket
-cc mcp                     # MCP JSON-RPC over stdio/SSE
+# 拉取 Docker 镜像
+docker pull ghcr.io/your-org/kodeforge:latest
+
+# 查看运行状态和可用合规预设
+docker run --rm ghcr.io/your-org/kodeforge:latest status
+
+# 跑质量门禁 demo（用内置 mock 数据，零依赖）
+docker run --rm ghcr.io/your-org/kodeforge:latest validate --config-dir config
+
+# 启动 API 服务（填入你自己的 LLM Key）
+docker run --rm -p 8080:8080 \
+  -e ANTHROPIC_API_KEY=sk-ant-... \
+  ghcr.io/your-org/kodeforge:latest serve
 ```
 
-## 🚀 Quick Start
+启动后：
+- API 文档 → http://localhost:8080/docs
+- 健康检查 → http://localhost:8080/api/v1/health
+- 提交代码到管线 → `POST /api/v1/pipeline/run`
 
-### Install
+---
 
-```bash
-git clone <repo-url> && cd kodeforge
-pip install -e ".[dev]"
+## Workflow
+
+```
+AI 生成代码（Claude / GPT / Gemini）
+      │
+      ▼
+🔒 OutputGuard（injection + PII 检测）
+      │
+      ▼
+📊 QualityEvaluator（自动评分: critical / high / medium / low）
+      │
+      ├── PASS ──────────── AuditLog 记录 → ✅ 上线
+      │
+      └── FAIL
+            │
+            ▼
+      ConvergenceDetector（有界修复循环，最多 N 次）
+            │
+            ├── 收敛 → AuditLog 记录 → 上线
+            │
+            └── 未收敛
+                  │
+                  ▼
+            ✋ HITLApproval（Critical 必须人工审批，不可绕过）
+                  │
+                  ├── 通过 → AuditLog 记录 → 上线
+                  └── 拒绝 → 拒绝记录留痕，流程终止
+
+      ↑
+整个链路：AuditLog 代码化保存（WORM，6 年不可篡改，SOC 2 / HIPAA 就绪）
 ```
 
-### Zero-Config Demo (no API key needed)
+---
 
-```bash
-python examples/demo_showcase.py
+## Quality Gate 预设（开箱即用）
+
+| 预设 | 适用场景 | 关键约束 |
+|------|---------|---------|
+| `financial-general` | 城商行 / 金融科技 | Critical issue = 0；Quality Score ≥ 0.80 |
+| `financial-tier3` | 等保三级银行核心系统 | Critical + High = 0；AI 生成代码占比 ≤ 60% |
+| `financial-sox` | SOX 财务报告系统 | 所有模块强制 HITL；双人双签审批链 |
+| `hipaa-phi` | 医疗健康（HIPAA） | ePHI 零容忍；人工 attestation 必须；季度审计 |
+
+配置文件位于 `kodeforge_quality/presets/[name].yaml`，人类可读可定制。
+
+---
+
+## 核心差异（vs 现有工具）
+
+| 维度 | KodeForge | Cursor / Copilot | CodeRabbit | Dify / LangGraph |
+|------|-----------|------------------|------------|------------------|
+| 代码生成 | ✅ Schema 驱动 | ✅ 通用 | ❌（只做 Review） | ✅ Agent 框架 |
+| **质量门禁 + 收敛检测** | **✅ 内置** | ❌ | ❌ | ❌ 需自建 |
+| **HITL 不可绕过审批** | **✅ 架构一等公民** | ❌ | ❌ | ❌ |
+| **SOC 2 / HIPAA 审计追踪** | **✅ 不可篡改日志** | ❌ | ❌ | ⚠️ 部分 |
+| RAG 双引擎辅助生成 | ✅ | ❌ | ❌ | ⚠️ 单引擎 |
+| Schema-first（新增模块零代码） | ✅ | ❌ | — | ❌ |
+
+---
+
+## 架构
+
+```
+User Requirement
+  → 🔒 InputGuard (injection detection + PII masking)
+  → 🧠 Memory.load() (restore context)
+  → ✋ HITL.request_approval() (risk-based gate)
+  → 📊 CodexSupervisor.parse_requirement() → identify modules
+  → 🔧 PipelineCompiler.compile() → context/order/prompts/fixes/gates
+  → 📦 ExpertAgent.process() × N (with Skills injection, parallel)
+  → ✍️ Supervisor.generate_code() × N (LLM code gen + AST validation)
+  → ✅ OutputGuard.check() (code safety + PII cleanup)
+  → 📊 QualityEvaluator + ConvergenceDetector (fix loop until convergence)
+  → ✋ HITLApproval (Critical issues → human sign-off, unskippable)
+  → 📋 AuditLog.record() (immutable, 6-year retention)
+  → 🔍 Tracer + PipelineMetrics (full observability)
 ```
 
-Runs a complete 6-step pipeline with mock LLM — see schema compilation, expert analysis, code generation, security review, quality evaluation, and observability in action.
+---
 
-### Real LLM
+## Quick Start
+
+### 选项 A：Docker（推荐种子客户试用）
 
 ```bash
-# Pick one:
-export ANTHROPIC_API_KEY="sk-..."        # Claude (recommended)
-export OPENAI_API_KEY="sk-..."            # OpenAI / DeepSeek / Tongyi / Kimi
-export GEMINI_API_KEY="AIza..."           # Gemini
+# 拉镜像
+docker pull ghcr.io/your-org/kodeforge:latest
 
-# Run full pipeline
-cc run "Build a JWT auth module with FastAPI"
+# 跑 demo
+docker run --rm ghcr.io/your-org/kodeforge:latest validate
+
+# 启动服务
+cp .env.example .env     # 填入你的 LLM Key
+docker compose up
+# 或生产模式
+docker compose -f docker-compose.prod.yml up -d
 ```
 
-### Scaffold a New Project
+### 选项 B：本地安装
 
 ```bash
-cc init my-project --modules "auth,api,data"
-# Generates: schemas, agents.yaml, pipeline.yaml, README
+pip install kodeforge
+cc status                # 查看可用 LLM 和组件状态
+cc run "Build a JWT auth module with FastAPI"   # 真实 LLM 完整管线
 ```
 
 ### Python API
 
 ```python
-# Layer 1: One-liner
-from agents.pipeline import generate_code
-result = generate_code("Build a REST API with auth")
+from kodeforge_quality import (
+    QualityEvaluator, ConvergenceDetector, AuditLogger, GateConfig
+)
 
-# Layer 2: Pipeline class
-from agents.pipeline import Pipeline
-pipeline = Pipeline(config_dir="config", llm_backend="mock")
-result = pipeline.run("Build a REST API with auth")
+evaluator = QualityEvaluator.from_preset("financial-general")
+report = evaluator.evaluate(review_results)
 
-# Layer 3: Full multi-agent system
-from agents.pipeline import KodeForge
-agent = KodeForge()
+if not report.passed:
+    detector = ConvergenceDetector(max_iterations=3)
+    should_fix, reason = detector.should_continue(iteration, report)
+    if not should_fix:
+        raise HITLRequiredException(report.audit_bundle)
 ```
 
-## 🎯 Use Cases
-
-- **Custom AI coding pipelines** — Build multi-agent systems that match your architecture
-- **RAG-powered code generation** — Feed your codebase + docs for context-aware code
-- **Self-improving agents** — Skills automatically extracted from successful runs
-- **Multi-model applications** — Swap between Claude/GPT/Gemini/DeepSeek without code changes
-- **HITL workflows** — Auto-approve low-risk changes, escalate high-risk ones
-- **Feedback-driven improvement** — GRPO preference optimization from human feedback (👍👎)
-- **Skill marketplace** — Publish and share reusable skills as Markdown files
-
-## 🏗️ Architecture
-
-```
-User Requirement
-  → 🔒 InputGuard (injection detection + PII masking)
-  → 🧠 Memory.load() (restore context)
-  → ✋ HITL Approval (risk-based gate)
-  → 📊 CodexSupervisor.parse_requirement() → identify modules
-  → 🔧 PipelineCompiler.compile() → context/order/prompts/fixes/gates
-  → 📦 ExpertAgent.process() × N (with Skills injection, parallel)
-  → ✍️ Supervisor.generate_code() × N (LLM code gen + AST validation)
-  → ✅ OutputGuard.check() (code safety + PII cleanup + strict mode)
-  → 💾 Memory.save() + SessionState.checkpoint()
-  → 📊 QualityEvaluator + ConvergenceDetector (fix loop up to 3×)
-  → 🔍 Tracer (contextmanager spans) + AuditLog (PII masked) + PipelineMetrics
-  → 📤 Code Artifact
-```
-
-## 📚 Documentation
-
-| Document | Description |
-|----------|-------------|
-| [Quick Start](docs/QUICK_START.md) | 5 分钟上手，安装、配置、第一个 Pipeline |
-| [Schema Guide](docs/SCHEMA_GUIDE.md) | 如何定义模块 Input/Output Schema |
-| [Pipeline Config](docs/PIPELINE_CONFIG.md) | 质量门禁、超时、重试策略配置 |
-| [RAG Config](docs/RAG_CONFIG.md) | 双引擎（Search + Cognitive）调参指南 |
-| [Skill Authoring](docs/SKILL_AUTHORING.md) | 编写自定义 Skill |
-| [Deployment](docs/DEPLOYMENT.md) | Docker / 生产环境部署 |
-
-## 🎯 Use Cases
-
-- **Custom AI coding pipelines** — Build multi-agent systems that match your architecture
-- **RAG-powered code generation** — Feed your codebase + docs for context-aware code
-- **Self-improving agents** — Skills automatically extracted from successful runs
-- **Multi-model applications** — Swap between Claude/GPT/Gemini/DeepSeek without code changes
-- **HITL workflows** — Auto-approve low-risk changes, escalate high-risk ones
-- **Feedback-driven improvement** — GRPO preference optimization from human feedback (👍👎)
-- **Skill marketplace** — Publish and share reusable Markdown files
-
-## 🏗️ Architecture
-
-```
-User Requirement
-  → 🔒 InputGuard (injection detection + PII masking)
-  → 🧠 Memory.load() (restore context)
-  → ✋ HITL Approval (risk-based gate)
-  → 📊 CodexSupervisor.parse_requirement() → identify modules
-  → 🔧 PipelineCompiler.compile() → context/order/prompts/fixes/gates
-  → 📦 ExpertAgent.process() × N (with Skills injection, parallel)
-  → ✍️ Supervisor.generate_code() × N (LLM code gen + AST validation)
-  → ✅ OutputGuard.check() (code safety + PII cleanup + strict mode)
-  → 💾 Memory.save() + SessionState.checkpoint()
-  → 📊 QualityEvaluator + ConvergenceDetector (fix loop up to 3×)
-  → 🔍 Tracer (contextmanager spans) + AuditLog (PII masked) + PipelineMetrics
-  → 📤 Code Artifact
-
-Feedback (👍👎) can be collected for GRPO preference optimization.
-```
-```
-
-## 🔧 Adding a New Module
-
-**Zero code changes** — just two config files:
-
-1. Create `config/schemas/xxx_input.json` + `xxx_output.json`
-2. Add `expert_xxx` section to `config/agents.yaml` with capabilities
-3. Auto-discovered at runtime
-
-## 📚 Adding a New Skill
-
-Skills are Markdown-based — no code required:
-
-```markdown
-# tools/skills/builtin/my-skill/SKILL.md
----
-name: my-skill
-description: What this skill does
-triggers: [keyword1, keyword2]
-version: 1.0.0
-author: your-name
 ---
 
-# Skill Instructions
+## Use Cases
 
-Detailed instructions for the agent...
-```
+- **金融核心系统 AI Coding 合规** — 等保三级 + SOC 2 + 银保监发〔2022〕2 号
+- **医疗 SaaS HIPAA 合规** — 2025 OCR 指引 AI 代码部署前必须有人工 attestation
+- **政务数字化 AI 审计追踪** — 政府采购 AI 工具合规留痕
+- **500+ 人研发团队 AI Coding 治理** — 质量底线 + 收敛保证 + 团队质量趋势
+- **金融科技 SOC 2 Type II 审核** — Audit Log 直接输出，审计员一次性通过
 
-Or publish via CLI:
-```bash
-cc skills publish path/to/my-skill
-```
+---
 
-## 📊 Competitor Comparison
-
-| Feature | **CC** | Claude Code | Cursor | Hermes | Dify | Coze | Gemini CLI |
-|---------|--------|-------------|--------|--------|------|------|-------------|
-| Schema-first Multi-Agent | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| RAG Dual-Engine | ✅ | ❌ | ❌ | Partial | Search | Search | ❌ |
-| Skill Self-Learning | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| User Modeling + Intent | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| GRPO Feedback-Driven | ✅ | ❌ | ❌ | Partial | ❌ | ❌ | ❌ |
-| HITL Risk Approval | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Milvus/Chroma Vector DB | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ |
-| LLM Query Rewrite | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
-| REST API + WebSocket | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ |
-| CLI + GUI | ✅ | ✅ CLI | ✅ IDE | ❌ | ❌ | ✅ | ✅ CLI |
-| Feedback-Driven GUI | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Skill Marketplace | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| 20+ LLM Providers | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ |
-
-## 📁 Project Structure
-
-```
-├── agents/                  # Supervisor + Expert agents
-│   ├── supervisor/           # CodexSupervisor (requirement parsing, task decomposition)
-│   └── experts/              # ExpertAgent (auto-discovered, config-driven)
-├── tools/
-│   ├── rag/                 # RAG dual-engine
-│   │   ├── pipeline.py       # Search: BM25+Vector+Graph→RRF→Rerank
-│   │   ├── intent.py         # Cognitive: Intent→Memory→Skill→GRPO
-│   │   ├── feedback.py       # Human feedback collection (👍👎)
-│   │   ├── grpo.py           # GRPO trainer (stub + real gradient)
-│   │   ├── memory_manager.py # Cross-session memory
-│   │   ├── skill_manager.py  # Skill matching + injection
-│   │   ├── user_model.py     # Expertise detection + intent routing
-│   │   ├── vector_store.py   # Milvus/Chroma/InMemory
-│   │   ├── retriever.py      # BM25 + Vector + Graph retrievers
-│   │   ├── reranker.py       # Cross-encoder + LLM scorer + combined
-│   │   ├── query_rewriter.py # Multi-strategy query rewriting
-│   │   └── observability.py  # Metrics + structured logging
-│   ├── compiler/            # Pipeline compiler (Schema→executable)
-│   │   ├── context_deriver.py # Context strategy generation
-│   │   ├── fix_deriver.py    # Fix rule generation
-│   │   ├── dependency_graph.py # Module dependency DAG
-│   │   └── prompt_generator.py # Prompt template generation
-│   ├── quality/             # Quality evaluation + convergence detection
-│   ├── guardrails/          # Input/output security (injection, PII, leaks)
-│   ├── memory/              # Short-term + long-term + session state
-│   ├── hitl/                # HITL risk-based approval + audit log
-│   ├── workflow/            # DAG execution engine (topological sort)
-│   ├── llm/                 # LLM provider abstraction (20+ providers)
-│   ├── skills/              # Markdown skill system (load, manage, publish)
-│   │   ├── loader.py         # SKILL.md parser (YAML frontmatter)
-│   │   ├── manager.py        # Skill selection + prompt injection
-│   │   └── registry.py       # Skill marketplace (publish/search/unpublish)
-│   ├── observability/       # Per-request Tracer + PipelineMetrics
-│   ├── eval/                # 25 behavioral evaluation cases
-│   ├── cc_switch.py         # Multi-provider model switcher + connectivity test
-│   └── cc_cli.py            # Unified CLI entry point
-├── gui/                     # Streamlit GUI
-│   └── app.py               # Query/Pipeline/Skills/Feedback/Status pages
-├── config/
-│   ├── schemas/             # 7 JSON module schemas (auth, cart, order, etc.)
-│   ├── agents.yaml          # Agent capability registry
-│   └── pipeline.yaml        # Pipeline phases, quality gates, retry policies
-├── tests/                   # 621 tests across 24 files
-├── examples/                # Demo scripts
-└── pyproject.toml           # Package config + dependencies
-```
-
-## 🎯 Use Cases
-
-- **Custom AI coding pipelines** — Build multi-agent systems that match your architecture
-- **RAG-powered code generation** — Feed your codebase + docs for context-aware code
-- **Self-improving agents** — Skills automatically extracted from successful runs
-- **Multi-model applications** — Swap between Claude/GPT/Gemini/DeepSeek without code changes
-- **HITL workflows** — Auto-approve low-risk changes, escalate high-risk ones
-- **Feedback-driven improvement** — GRPO preference optimization from human feedback (👍👎)
-- **Skill marketplace** — Publish and share reusable skills as Markdown files
-
-## 🧪 Testing
+## Testing
 
 ```bash
 python -m pytest tests/ -v
-# 1021 passed, 9 skipped, 0 failed
+# 1095 passed, 13 skipped, 0 failed
 ```
 
 | Test File | Coverage Area | Tests |
 |-----------|--------------|-------|
-| `tests/test_rag.py` | RAG pipeline | 45 |
-| `tests/test_rag_dual_engine.py` | Cognitive engine | 46 |
-| `tests/test_rag_production.py` | Production features | 43 |
-| `tests/test_grpo.py` | GRPO + feedback store | 42 |
+| `tests/test_quality.py` | QualityGate + ConvergenceDetector | 31 |
+| `tests/test_hitl.py` | HITL Approval + AuditLog | 21 |
 | `tests/test_guardrails.py` | Input/output security | 22 |
-| `tests/test_hitl.py` | HITL approval | 21 |
-| `tests/test_memory_full.py` | Long-term memory + store | 39 |
-| `tests/test_quality.py` | Quality + convergence | 31 |
-| `tests/test_enhancements.py` | Tracer contextmanager + behavioral assertions + HITL HumanNode + audit PII masking + eval isolation | 46 |
-| `tests/test_workflow_full.py` | Workflow nodes + engine | 18 |
-| `tests/test_cc_switch.py` | Model switching + CLI | 30+ |
-| `tests/compiler/` | Pipeline compiler | ~60 |
-| `tests/integration/` | End-to-end integration | ~100 |
+| `tests/compiler/` | Pipeline compiler | ~67 |
+| `tests/integration/` | End-to-end pipeline | ~100 |
 | `tests/stores/` | State management | ~20 |
 
-## 🌍 Environment Variables
+---
 
-| Variable | Required For | Description |
-|----------|-------------|-------------|
-| `ANTHROPIC_API_KEY` | Anthropic Claude | API key (sk-... or sk-ant-...) |
-| `ANTHROPIC_BASE_URL` | Custom gateway | Proxy/gateway URL |
-| `ANTHROPIC_MODEL` | Model override | e.g. claude-opus-4-7 |
-| `OPENAI_API_KEY` | OpenAI-compatible | Works for Tongyi/DeepSeek/Zhipu/Kimi/MiniMax |
-| `OPENAI_BASE_URL` | Custom endpoint | OpenAI-compatible endpoint URL |
-| `OPENAI_MODEL` | Model override | e.g. gpt-4o |
-| `GEMINI_API_KEY` | Google Gemini | API key (AIza...) |
+## Documentation
 
-## 📐 Design Philosophy
+| Document | 内容 |
+|----------|------|
+| [Quick Start](docs/QUICK_START.md) | 5 分钟上手 |
+| [Quality Gate 配置](docs/PIPELINE_CONFIG.md) | 质量门禁、超时、重试策略 |
+| [Schema Guide](docs/SCHEMA_GUIDE.md) | 模块 Schema 编写指南 |
+| [RAG 双引擎调参](docs/RAG_CONFIG.md) | Search + Cognitive 引擎参数 |
+| [Deployment](docs/DEPLOYMENT.md) | Docker / 生产部署（含 SOC 2 指引） |
 
-1. **Schema-first, not code-first** — Define what, not how
-2. **Dual-engine RAG** — Search for facts, cognitive for complex reasoning
-3. **Self-improving** — Every successful run improves the skill library
-4. **Feedback-driven** — Human feedback (👍👎) feeds GRPO preference optimization
-5. **HITL by default** — Low auto, high manual, never blind trust
-6. **Strict when needed** — `cc run --strict` blocks unsafe outputs instead of rewriting
-7. **Behavioral eval** — Assert intent/tools/blocked, not exact output text
-8. **PII-safe audit** — All args masked before persistence
-9. **Isolated eval** — Per-case context isolation prevents state leakage
-10. **Model-agnostic** — Switch providers without changing pipeline code
-11. **Observable** — Every decision traced (contextmanager spans), every metric collected
-12. **Marketplace-ready** — Publish skills as shareable Markdown files
+---
 
-## 🔮 Roadmap
+## Environment Variables
 
-- [ ] Multi-platform messaging gateway (Telegram/Discord/Slack)
-- [ ] VS Code extension
-- [ ] Visual drag-drop workflow builder
-- [ ] Batch trajectory training pipeline
-- [ ] Enterprise multi-tenant deployment
-- [ ] PyPI publication (`pip install kodeforge`)
+| Variable | 用途 | 默认值 |
+|----------|------|--------|
+| `ANTHROPIC_API_KEY` | Claude（推荐用于代码审查质量） | — |
+| `OPENAI_API_KEY` | OpenAI 兼容（DeepSeek/Tongyi/Zhipu/Kimi） | — |
+| `KODEFORGE_PRESET` | Quality Gate 预设等级 | `financial-general` |
+| `HITL_THRESHOLD` | HITL 触发阈值 | `clinical` |
+| `AUDIT_LOG_DIR` | 审计日志目录 | `/tmp/audit` |
+| `CC_SERVER_PORT` | API 端口 | `8080` |
+
+完整变量列表见 [`.env.example`](.env.example)
+
+---
+
+## Project Structure
+
+```
+├── agents/                  # Supervisor + Expert agents
+├── tools/
+│   ├── quality/             # ⭐ QualityEvaluator + ConvergenceDetector
+│   ├── hitl/                # ⭐ HITL risk-based approval + AuditLog
+│   ├── guardrails/          # Input/output security
+│   ├── compiler/            # Schema → compiled pipeline
+│   ├── rag/                 # Dual-engine RAG (BM25+Vector+Graph + Cognitive)
+│   ├── workflow/            # DAG engine
+│   ├── llm/                 # 20+ LLM provider abstraction
+│   └── cc_cli.py            # Unified CLI entry point
+├── config/
+│   ├── schemas/             # Module JSON schemas
+│   ├── agents.yaml          # Agent registry
+│   └── pipeline.yaml        # Quality gate, retry policies
+├── packages/
+│   └── kodeforge-quality/   # ⭐ Standalone Quality Gate pip package
+├── Dockerfile.compliance    # ⭐ Seed-customer Docker image
+├── Dockerfile.production    # Production Docker image
+├── docker-compose.yml       # One-command dev deployment
+├── docker-compose.prod.yml  # Production deployment (nginx + app)
+├── .env.example             # Environment variable template
+├── tests/                   # 1095+ tests
+└── pyproject.toml           # Package config
+```
+
+---
+
+## Roadmap
+
+**Phase 1（现在） — 合规投资版**
+- [x] Quality Gate + HITL 审批链（核心能力）
+- [ ] `kodeforge-quality` 独立库（可 pip install）
+- [ ] 金融/等保/HIPAA 预设配置文件
+- [ ] 种子客户部署 + 白皮书
+
+**Phase 2（Q4 2026） — 渠道与基础设施**
+- [ ] GitHub Action 集成（开发者获客入口）
+- [ ] SOC 2 / HIPAA 认证套件文档
+- [ ] Team 商业版（$49/人/月）
+
+**Phase 3（2027 H1） — 规模化**
+- [ ] v1.0 商业版 GA
+- [ ] 医疗/政务垂直扩展
+- [ ] 渠道合作伙伴生态
+
+详见 [docs/PATH_A_ROADMAP.md](docs/PATH_A_ROADMAP.md)
+
+---
 
 ## License
 
