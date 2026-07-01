@@ -255,6 +255,13 @@ data/memory_store.json
 .idea/
 .vscode/
 
-# OS
-.DS_Store
-Thumbs.db
+# One-off debug / tool scripts — do not commit
+_apply_r3r5.py
+_verify_final.py
+
+# Pyflakes / pylint scratch output — one-off debugging snapshots
+# All *.txt in repo root is treated as scratch by default
+*.txt
+!requirements.txt
+!requirements-dev.txt
+
