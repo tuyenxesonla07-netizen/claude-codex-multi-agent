@@ -179,13 +179,13 @@ class SupervisorRouter:
                 return state
 
         # 无 LLM 时返回 intent 对应的 stub 回复
-        _REPLIES = {
+        _replies = {
             "code_generation": f"收到代码生成请求：{message}。正在编译流水线...",
             "code_fix": f"收到代码修复请求：{message}。正在定位问题并生成修复...",
             "quality_check": "正在运行质量门禁检查...",
             "knowledge_query": f"正在检索知识库以回答：{message}",
         }
-        state.reply = _REPLIES.get(state.intent, f"收到 {state.intent} 请求：{message}")
+        state.reply = _replies.get(state.intent, f"收到 {state.intent} 请求：{message}")
         state.stop_reason = StopReason.ANSWERED
         return state
 

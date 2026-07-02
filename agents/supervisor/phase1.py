@@ -14,7 +14,7 @@ import logging
 import os
 from typing import Any, Dict
 
-from agents.supervisor.types import Requirement, CompiledPipeline
+from agents.supervisor.types import CompiledPipeline, Requirement
 
 logger = logging.getLogger(__name__)
 
@@ -62,9 +62,9 @@ def run_phase1(
                     f"Set LLM_API_KEY environment variable or install required dependencies."
                 ) from e
 
-        from agents.supervisor.agent_executor import ExecutionBackend as _EB
+        from agents.supervisor.agent_executor import ExecutionBackend as _ExecutionBackendConst
 
-        class _DefaultBackend(_EB):
+        class _DefaultBackend(_ExecutionBackendConst):
             def __init__(self, provider) -> None:
                 self._provider = provider
 
@@ -234,7 +234,7 @@ def _generate_code_for_modules(
     enable_conflict_resolution: bool = True,
 ) -> Dict[str, str]:
     """Internal: generate code with optional conflict resolution."""
-    from agents.supervisor.agent_executor import TaskSpec, MergeCoordinator
+    from agents.supervisor.agent_executor import MergeCoordinator, TaskSpec
 
     code_artifact: Dict[str, str] = {}
     logger.info("[Supervisor] Starting real code generation for %d modules...", len(module_specs))
@@ -331,7 +331,10 @@ def _generate_code_for_modules(
 
     # Computer use: post-generation verification
     if enable_conflict_resolution and supervisor._computer_use_enabled:
-        from agents.supervisor.agent_executor import ComputerUseOrchestrator, create_computer_use_backend
+        from agents.supervisor.agent_executor import (
+            ComputerUseOrchestrator,
+            create_computer_use_backend,
+        )
         cu_backend = create_computer_use_backend(
             supervisor._computer_use_backend or "codex",
             workdir=supervisor._computer_use_workdir or ".",

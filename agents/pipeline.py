@@ -55,17 +55,17 @@ class KodeForge:
         hitl_auto_under_risk: str = "medium",
         max_workers: int = 3,
     ) -> None:
-        from tools.stores import StoreDatabase, RequirementStore, InterfaceStore, SpecStore
-        from tools.workflow.messaging import MessageBus
-        from tools.quality import QualityEvaluator
-        from tools.guardrails import InputGuard, OutputGuard
-        from tools.memory import Memory, SessionState
-        from tools.hitl import AutoApprovalHandler, ManualApprovalHandler, AuditLog
-        from tools.observability import Tracer, PipelineMetrics
-        from tools.plugins import PluginSkillRegistry
-        from tools.workflow import WorkflowEngine
-        from agents.supervisor.agent_executor import CodeWriterConfig
         from agents.experts import create_expert_agents
+        from agents.supervisor.agent_executor import CodeWriterConfig
+        from tools.guardrails import InputGuard, OutputGuard
+        from tools.hitl import AuditLog, AutoApprovalHandler, ManualApprovalHandler
+        from tools.memory import Memory, SessionState
+        from tools.observability import PipelineMetrics, Tracer
+        from tools.plugins import PluginSkillRegistry
+        from tools.quality import QualityEvaluator
+        from tools.stores import InterfaceStore, RequirementStore, SpecStore, StoreDatabase
+        from tools.workflow import WorkflowEngine
+        from tools.workflow.messaging import MessageBus
 
         # ── Core stores ──
         self._store_db = StoreDatabase()
@@ -174,6 +174,7 @@ class KodeForge:
         # Phase1Pipeline and Phase2Pipeline methods use `self` — bind them here
         # so they operate on this instance without multi-inheritance MRO issues.
         import types
+
         from agents.pipeline_phase1 import Phase1Pipeline
         from agents.pipeline_phase2 import Phase2Pipeline
         for _cls in (Phase1Pipeline, Phase2Pipeline):
@@ -181,7 +182,7 @@ class KodeForge:
                 if callable(_fn) and not _name.startswith("__"):
                     setattr(self, _name, types.MethodType(_fn, self))
 
-    def compile_pipeline(self, module_schemas, input_schemas=None) -> CompiledPipeline:
+    def compile_pipeline(self, module_schemas, input_schemas=None):
         return self.compiler.compile(
             module_schemas,
             input_schemas=input_schemas,
@@ -258,7 +259,8 @@ class KodeForge:
             written_files = []
             if phase1_result.get("code_artifact"):
                 try:
-                    written_files = write_code_artifacts(phase1_result["code_artifact"], self._code_writer_config)
+                    from agents.supervisor.agent_executor import write_code_artifacts as _write_code_artifacts
+                    written_files = _write_code_artifacts(phase1_result["code_artifact"], self._code_writer_config)
                     logger.info("[Pipeline] Wrote %d code files", len(written_files))
                 except Exception as e:
                     logger.error("[Pipeline] Code writer failed: %s", e)
@@ -296,9 +298,9 @@ class KodeForge:
                 return run_id
             await asyncio.sleep(0.01)
 
-    def run_eval(self, cases=None, verbose=True) -> EvalReport:
+    def run_eval(self, cases=None, verbose=True):
         """Run behavioral evaluation suite."""
-        from tools.eval import EvalRunner, EVAL_CASES
+        from tools.eval import EVAL_CASES, EvalRunner
 
         runner = EvalRunner(verbose=verbose)
         selected_cases = cases or EVAL_CASES
@@ -376,7 +378,7 @@ class KodeForge:
     def _module_to_short_name(cls, full_name: str) -> str:
         return cls._MODULE_NAME_MAP.get(full_name, full_name)
 
-    def _build_expert_input(self, module_name, input_schema, strategy, compiled, processed_specs=None) -> ExpertInput:
+    def _build_expert_input(self, module_name, input_schema, strategy, compiled, processed_specs=None):
         from agents.experts import ExpertInput
 
         requirement_text = input_schema.get("description", module_name)

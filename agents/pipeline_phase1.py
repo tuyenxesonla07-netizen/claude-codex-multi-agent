@@ -339,6 +339,7 @@ class Phase1Pipeline:
     def _run_workflow_phase1(self, compiled, code_artifact) -> dict:
         """Execute Phase 1 compiled pipeline via WorkflowEngine DAG."""
         import asyncio
+
         from tools.workflow import build_pipeline_workflow
 
         if not compiled or not hasattr(compiled, "implementation_order"):
